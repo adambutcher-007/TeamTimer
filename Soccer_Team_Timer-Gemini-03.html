@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Substitution Tracker</title>
+    <style>
+        :root {
+            --field-green: #4CAF50;
+            --line-white: #FFFFFF;
+            --dark-green: #388E3C;
+            --light-green: #C8E6C9;
+            --text-color: #FFFFFF;
+            --accent-color: #FFC107;
+            --button-color: #007BFF;
+            --button-hover-color: #0056b3;
+            --sub-out-color: #DC3545;
+            --sub-out-hover-color: #c82333;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--dark-green);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 10px auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--accent-color);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .field-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1.5 / 1;
+            background-color: var(--field-green);
+            border: 3px solid var(--line-white);
+            box-sizing: border-box;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .goal-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: var(--line-white);
+        }
+
+        .half-field-line {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: var(--line-white);
+        }
+
+        .sideline-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--line-white);
+        }
+
+        .sideline-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--line-white);
+        }
+
+        .goal-box {
+            position: absolute;
+            left: 0;
+            top: 25%;
+            width: 10%;
+            height: 50%;
+            border: 3px solid var(--line-white);
+            border-left: none;
+            box-sizing: border-box;
+        }
+
+        .penalty-box {
+            position: absolute;
+            left: 0;
+            top: 15%;
+            width: 25%;
+            height: 70%;
+            border: 3px solid var(--line-white);
+            border-left: none;
+            box-sizing: border-box;
+        }
+
+        .player-oval {
+            position: absolute;
+            width: 100px;
+            height: 60px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            touch-action: none;
+            z-index: 10;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .player-oval .player-name-on-map {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .timers-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .master-timer-container {
+            text-align: center;
+        }
+
+        .master-timer-container label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #master-timer {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent-color);
+            background-color: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .control-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--button-color);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .control-button:hover {
+            background-color: var(--button-hover-color);
+        }
+
+        .player-management {
+            background-color: var(--light-green);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            color: #333;
+        }
+
+        .add-player-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #new-player-name {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #add-player-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--field-green);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #add-player-button:hover {
+            background-color: var(--dark-green);
+        }
+        
+        #player-list-comment {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #player-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .player-timer {
+            font-size: 1.2em;
+            color: var(--dark-green);
+        }
+        
+        .player-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .sub-toggle-button {
+            padding: 8px 12px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 80px;
+            font-weight: bold;
+        }
+
+        .sub-toggle-button.is-subbed-out {
+            background-color: var(--button-color);
+        }
+        .sub-toggle-button.is-subbed-out:hover {
+            background-color: var(--button-hover-color);
+        }
+
+        .sub-toggle-button.is-subbed-in {
+            background-color: var(--sub-out-color);
+        }
+        .sub-toggle-button.is-subbed-in:hover {
+            background-color: var(--sub-out-hover-color);
+        }
+
+        .remove-player-button {
+            background-color: transparent;
+            border: none;
+            color: var(--sub-out-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 5px;
+            line-height: 1;
+            transition: opacity 0.3s;
+        }
+        .remove-player-button:hover {
+            opacity: 0.7;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-button {
+            background-color: var(--accent-color);
+            color: var(--dark-green);
+            padding: 10px 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 5px;
+            right: 0;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+        }
+
+        .dropdown-content a:hover {background-color: #ddd;}
+
+        .dropdown:hover .dropdown-content {display: block;}
+
+        @media (max-width: 600px) {
+             h1 {
+                font-size: 1.5em;
+            }
+            .player-oval {
+                width: 80px;
+                height: 50px;
+            }
+            .player-oval .player-name-on-map {
+                font-size: 12px;
+            }
+             .timers-container {
+                flex-direction: column;
+            }
+            .add-player-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Soccer Substitution Tracker</h1>
+
+        <div class="timers-container">
+            <div class="master-timer-container">
+                <label for="match-duration">Set Match Duration (minutes):</label>
+                <input type="number" id="match-duration" value="45" min="1" style="width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                <div id="master-timer">45:00</div>
+                <div class="controls">
+                    <button id="play-pause-resume" class="control-button">Play</button>
+                     <div class="dropdown">
+                        <button class="dropdown-button">💾</button>
+                        <div class="dropdown-content">
+                            <a id="save-data">Save to Browser</a>
+                            <a id="export-data">Export to File</a>
+                            <a id="import-data-label" for="import-file" >Import from File</a>
+                            <input type="file" id="import-file" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="field-container" id="field">
+            <div class="goal-line"></div>
+            <div class="half-field-line"></div>
+            <div class="sideline-top"></div>
+            <div class="sideline-bottom"></div>
+            <div class="goal-box"></div>
+            <div class="penalty-box"></div>
+        </div>
+
+        <div class="player-management">
+            <div class="add-player-form">
+                <input type="text" id="new-player-name" placeholder="Enter New Player's Name">
+                <button id="add-player-button">Add Player</button>
+            </div>
+             <p id="player-list-comment">Players are sorted by who has been in the game the longest.</p>
+            <ul id="player-list">
+                <!-- Player items will be dynamically inserted here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const field = document.getElementById('field');
+            const masterTimerEl = document.getElementById('master-timer');
+            const playPauseResumeBtn = document.getElementById('play-pause-resume');
+            const matchDurationInput = document.getElementById('match-duration');
+            
+            const newPlayerNameInput = document.getElementById('new-player-name');
+            const addPlayerBtn = document.getElementById('add-player-button');
+            const playerList = document.getElementById('player-list');
+
+            const saveDataBtn = document.getElementById('save-data');
+            const exportDataBtn = document.getElementById('export-data');
+            const importDataLabel = document.getElementById('import-data-label');
+            const importFileInput = document.getElementById('import-file');
+
+            let players = [];
+            let masterTimerInterval;
+            let timerState = 'paused'; // 'paused', 'playing'
+            let masterTimeRemaining = parseInt(matchDurationInput.value) * 60;
+            let playerTimerInterval;
+
+            // Drag and Drop Logic
+            let activeOval = null;
+            let initialX, initialY, xOffset = 0, yOffset = 0;
+
+            const dragStart = (e) => {
+                activeOval = e.target.closest('.player-oval');
+                if (!activeOval) return;
+
+                const parentRect = field.getBoundingClientRect();
+                if (e.type === 'touchstart') {
+                    initialX = e.touches[0].clientX - activeOval.offsetLeft;
+                    initialY = e.touches[0].clientY - activeOval.offsetTop;
+                } else {
+                    initialX = e.clientX - activeOval.offsetLeft;
+                    initialY = e.clientY - activeOval.offsetTop;
+                }
+            };
+            
+            const dragEnd = (e) => {
+                if (!activeOval) return;
+                
+                const playerId = activeOval.dataset.id;
+                const player = players.find(p => p.id == playerId);
+                if (player) {
+                    player.position = {
+                        x: activeOval.style.left,
+                        y: activeOval.style.top
+                    };
+                }
+                
+                activeOval = null;
+            };
+
+            const drag = (e) => {
+                if (!activeOval) return;
+                e.preventDefault();
+                
+                let currentX, currentY;
+                const fieldRect = field.getBoundingClientRect();
+
+                if (e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                } else {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                }
+
+                // Constrain movement within the field
+                const ovalRect = activeOval.getBoundingClientRect();
+                
+                let newLeft = currentX;
+                let newTop = currentY;
+
+                if (newLeft < 0) newLeft = 0;
+                if (newTop < 0) newTop = 0;
+                if (newLeft + ovalRect.width > fieldRect.width) newLeft = fieldRect.width - ovalRect.width;
+                if (newTop + ovalRect.height > fieldRect.height) newTop = fieldRect.height - ovalRect.height;
+                
+                activeOval.style.left = `${newLeft}px`;
+                activeOval.style.top = `${newTop}px`;
+            };
+
+            field.addEventListener('mousedown', dragStart);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('mousemove', drag);
+            
+            field.addEventListener('touchstart', dragStart, { passive: false });
+            document.addEventListener('touchend', dragEnd);
+            document.addEventListener('touchmove', drag, { passive: false });
+
+            // Timer Logic
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            };
+
+            const updateMasterTimerDisplay = () => {
+                masterTimerEl.textContent = formatTime(masterTimeRemaining);
+            };
+
+            const startTimers = () => {
+                 if (timerState === 'playing') return;
+                timerState = 'playing';
+                playPauseResumeBtn.textContent = 'Pause';
+                
+                masterTimerInterval = setInterval(() => {
+                    if (masterTimeRemaining > 0) {
+                        masterTimeRemaining--;
+                        updateMasterTimerDisplay();
+                    } else {
+                        clearInterval(masterTimerInterval);
+                        timerState = 'paused';
+                        playPauseResumeBtn.textContent = 'Play';
+                    }
+                }, 1000);
+
+                playerTimerInterval = setInterval(() => {
+                    players.forEach(player => {
+                        if (player.inGame) {
+                            player.time++;
+                        }
+                    });
+                    renderPlayers();
+                }, 1000);
+            };
+            
+            const pauseTimers = () => {
+                timerState = 'paused';
+                playPauseResumeBtn.textContent = 'Resume';
+                clearInterval(masterTimerInterval);
+                clearInterval(playerTimerInterval);
+            };
+            
+            playPauseResumeBtn.addEventListener('click', () => {
+                if (timerState === 'paused') {
+                    startTimers();
+                } else {
+                    pauseTimers();
+                }
+            });
+
+            matchDurationInput.addEventListener('change', () => {
+                if (timerState === 'paused') {
+                    masterTimeRemaining = parseInt(matchDurationInput.value) * 60;
+                    updateMasterTimerDisplay();
+                }
+            });
+
+
+            // Player Management
+            const addPlayer = (name, time = 0, inGame = false, id = Date.now(), position = {x: '20px', y: '20px'}) => {
+                if (!name.trim()) return;
+                players.push({ id, name, time, inGame, position });
+                newPlayerNameInput.value = '';
+                renderPlayers();
+            };
+            
+            const removePlayer = (id) => {
+                players = players.filter(p => p.id !== id);
+                renderPlayers();
+            };
+
+            const subIn = (id) => {
+                const player = players.find(p => p.id === id);
+                if (player) {
+                    player.inGame = true;
+                    renderPlayers();
+                }
+            };
+            
+            const subOut = (id) => {
+                const player = players.find(p => p.id === id);
+                if (player) {
+                    player.inGame = false;
+                    renderPlayers();
+                }
+            };
+
+            addPlayerBtn.addEventListener('click', () => addPlayer(newPlayerNameInput.value));
+            newPlayerNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addPlayer(newPlayerNameInput.value);
+            });
+            
+            playerList.addEventListener('click', (e) => {
+                const playerItem = e.target.closest('.player-item');
+                if (!playerItem) return;
+                const id = parseInt(playerItem.dataset.id);
+
+                if (e.target.classList.contains('sub-toggle-button')) {
+                    const player = players.find(p => p.id === id);
+                    if (player) {
+                        player.inGame ? subOut(id) : subIn(id);
+                    }
+                }
+
+                if (e.target.classList.contains('remove-player-button')) {
+                    removePlayer(id);
+                }
+            });
+
+            // Rendering
+            const renderPlayers = () => {
+                players.sort((a, b) => b.time - a.time);
+                
+                playerList.innerHTML = '';
+                field.querySelectorAll('.player-oval').forEach(oval => oval.remove());
+                
+                players.forEach(player => {
+                    const li = document.createElement('li');
+                    li.className = 'player-item';
+                    li.dataset.id = player.id;
+
+                    const subButtonText = player.inGame ? 'Sub Out' : 'Sub In';
+                    const subButtonClass = player.inGame ? 'is-subbed-in' : 'is-subbed-out';
+
+                    li.innerHTML = `
+                        <div class="player-info">
+                            <span class="player-name">${player.name}</span>
+                            <span class="player-timer">${formatTime(player.time)}</span>
+                        </div>
+                        <div class="player-controls">
+                            <button class="sub-toggle-button ${subButtonClass}">${subButtonText}</button>
+                            <button class="remove-player-button">❌</button>
+                        </div>
+                    `;
+                    playerList.appendChild(li);
+
+                    if (player.inGame) {
+                        const oval = document.createElement('div');
+                        oval.className = 'player-oval';
+                        oval.dataset.id = player.id;
+                        oval.style.left = player.position.x;
+                        oval.style.top = player.position.y;
+                        oval.innerHTML = `<span class="player-name-on-map">${player.name}</span>`;
+                        field.appendChild(oval);
+                    }
+                });
+            };
+            
+            // Data Persistence
+            const saveToLocalStorage = () => {
+                const appData = {
+                    players,
+                    masterTimeRemaining,
+                    matchDuration: parseInt(matchDurationInput.value)
+                };
+                localStorage.setItem('soccerTrackerData', JSON.stringify(appData));
+                alert('Data saved to browser!');
+            };
+
+            const loadFromLocalStorage = () => {
+                const savedData = localStorage.getItem('soccerTrackerData');
+                if (savedData) {
+                    const appData = JSON.parse(savedData);
+                    players = appData.players || [];
+                    masterTimeRemaining = appData.masterTimeRemaining !== undefined ? appData.masterTimeRemaining : (parseInt(matchDurationInput.value) * 60 || 2700);
+                    matchDurationInput.value = appData.matchDuration || 45;
+                    renderPlayers();
+                }
+            };
+            
+            const exportToFile = () => {
+                const appData = {
+                    players,
+                    masterTimeRemaining,
+                    matchDuration: parseInt(matchDurationInput.value)
+                };
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href",     dataStr);
+                downloadAnchorNode.setAttribute("download", "soccer_tracker_data.json");
+                document.body.appendChild(downloadAnchorNode);
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            };
+
+            const importFromFile = (event) => {
+                const fileReader = new FileReader();
+                fileReader.onload = (e) => {
+                    try {
+                        const appData = JSON.parse(e.target.result);
+                        if (appData.players && appData.masterTimeRemaining !== undefined && appData.matchDuration !== undefined) {
+                            players = appData.players;
+                            masterTimeRemaining = appData.masterTimeRemaining;
+                            matchDurationInput.value = appData.matchDuration;
+                            updateMasterTimerDisplay();
+                            renderPlayers();
+                            alert('Data imported successfully!');
+                        } else {
+                            alert('Invalid file format.');
+                        }
+                    } catch (error) {
+                        alert('Error reading file. Make sure it is a valid JSON file.');
+                    }
+                };
+                fileReader.readAsText(event.target.files[0]);
+            };
+
+            saveDataBtn.addEventListener('click', saveToLocalStorage);
+            exportDataBtn.addEventListener('click', exportToFile);
+            importDataLabel.addEventListener('click', () => importFileInput.click());
+            importFileInput.addEventListener('change', importFromFile);
+
+            // Initial Load
+            loadFromLocalStorage();
+            updateMasterTimerDisplay();
+            renderPlayers();
+        });
+    </script>
+</body>
+</html>
