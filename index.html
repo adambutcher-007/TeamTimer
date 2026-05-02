@@ -6,24 +6,24 @@
     <title>Soccer Substitution Tracker</title>
     <style>
         :root {
-            --field-green:      #4CAF50;
-            --line-white:       #FFFFFF;
-            --dark-green:       #388E3C;
-            --light-green:      #C8E6C9;
-            --text-color:       #FFFFFF;
-            --accent-color:     #FFC107;
-            --button-color:     #007BFF;
-            --button-hover:     #0056b3;
-            --sub-out-color:    #DC3545;
-            --sub-out-hover:    #c82333;
-            --reset-color:      #6c757d;
-            --reset-hover:      #545b62;
-            --queue-color:      #FF8C00;
-            --queue-hover:      #e07b00;
-            --add-color:        #7B2FBE;
-            --add-hover:        #5e1f96;
-            --profile-bg:       rgba(0,0,0,0.25);
-            --profile-border:   rgba(255,255,255,0.2);
+            --field-green:    #4CAF50;
+            --line-white:     #FFFFFF;
+            --dark-green:     #388E3C;
+            --light-green:    #C8E6C9;
+            --text-color:     #FFFFFF;
+            --accent-color:   #FFC107;
+            --button-color:   #007BFF;
+            --button-hover:   #0056b3;
+            --sub-out-color:  #DC3545;
+            --sub-out-hover:  #c82333;
+            --reset-color:    #6c757d;
+            --reset-hover:    #545b62;
+            --queue-color:    #FF8C00;
+            --queue-hover:    #e07b00;
+            --add-color:      #7B2FBE;
+            --add-hover:      #5e1f96;
+            --panel-bg:       rgba(0,0,0,0.22);
+            --panel-border:   rgba(255,255,255,0.18);
         }
 
         * { box-sizing: border-box; }
@@ -33,72 +33,106 @@
             background-color: var(--dark-green);
             color: var(--text-color);
             margin: 0; padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            user-select: none;
-            -webkit-user-select: none;
+            display: flex; flex-direction: column; align-items: center;
+            user-select: none; -webkit-user-select: none;
             touch-action: manipulation;
         }
 
         .container {
-            width: 100%;
-            max-width: 900px;
-            margin: 10px auto;
-            padding: 10px;
+            width: 100%; max-width: 900px;
+            margin: 0 auto; padding: 8px 10px 16px;
         }
 
-        h1 {
-            text-align: center;
-            color: var(--accent-color);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            margin: 6px 0 12px;
-        }
-
-        /* ═══════════════════════════════════
-           PROFILE BAR
-        ═══════════════════════════════════ */
-        #profile-bar {
-            background: var(--profile-bg);
-            border: 1px solid var(--profile-border);
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 14px;
+        /* ════════════════════════════════
+           GAME BAR  (always visible strip)
+        ════════════════════════════════ */
+        #game-bar {
             display: flex;
             align-items: center;
             gap: 8px;
-            flex-wrap: wrap;
+            padding: 7px 4px;
+            margin-bottom: 4px;
         }
 
-        #profile-bar label {
+        #active-profile-name {
             font-weight: bold;
-            font-size: 0.9em;
+            font-size: 1.05em;
+            color: var(--accent-color);
+            flex: 1;
             white-space: nowrap;
-            color: rgba(255,255,255,0.85);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
         }
 
+        #autosave-indicator {
+            font-size: 0.72em;
+            color: rgba(255,255,255,0.45);
+            white-space: nowrap;
+            transition: color 0.3s;
+            flex-shrink: 0;
+        }
+        #autosave-indicator.saved  { color: #81e381; }
+        #autosave-indicator.saving { color: #FFD580; }
+
+        #setup-toggle-btn {
+            flex-shrink: 0;
+            padding: 6px 13px;
+            font-size: 0.85em;
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            background: var(--panel-bg);
+            color: rgba(255,255,255,0.85);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+        #setup-toggle-btn:hover,
+        #setup-toggle-btn.open { background: rgba(255,255,255,0.18); color: #fff; }
+
+        /* ════════════════════════════════
+           SETUP PANEL  (collapsible)
+        ════════════════════════════════ */
+        #setup-panel-wrap {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.38s ease;
+        }
+        #setup-panel-wrap.open { max-height: 700px; }
+
+        #setup-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Profile row inside panel */
+        #profile-row {
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        }
+        #profile-row label {
+            font-size: 0.85em; font-weight: bold;
+            color: rgba(255,255,255,0.8); white-space: nowrap;
+        }
         #profile-select {
-            flex: 1;
-            min-width: 130px;
-            padding: 6px 8px;
-            border-radius: 5px;
+            flex: 1; min-width: 120px;
+            padding: 6px 8px; border-radius: 5px;
             border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.12);
-            color: #fff;
-            font-size: 0.95em;
+            background: rgba(255,255,255,0.1); color: #fff;
+            font-size: 0.9em;
         }
         #profile-select option { background: #2e6b32; color: #fff; }
 
         .profile-btn {
-            padding: 6px 12px;
-            font-size: 0.85em;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background-color 0.2s;
+            padding: 5px 11px; font-size: 0.8em;
+            border: none; border-radius: 5px; cursor: pointer;
+            white-space: nowrap; transition: background-color 0.2s;
         }
-
         #profile-new-btn    { background: var(--button-color); color: #fff; }
         #profile-new-btn:hover { background: var(--button-hover); }
         #profile-rename-btn { background: var(--accent-color); color: #222; }
@@ -106,104 +140,114 @@
         #profile-delete-btn { background: var(--sub-out-color); color: #fff; }
         #profile-delete-btn:hover { background: var(--sub-out-hover); }
 
-        #autosave-indicator {
-            font-size: 0.75em;
-            color: rgba(255,255,255,0.55);
-            margin-left: auto;
-            white-space: nowrap;
-            min-width: 80px;
-            text-align: right;
-            transition: color 0.3s;
+        /* Settings rows inside panel */
+        .setup-row {
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            font-size: 0.9em; color: rgba(255,255,255,0.85);
         }
-        #autosave-indicator.saved  { color: #81e381; }
-        #autosave-indicator.saving { color: #FFD580; }
+        .setup-row label { font-weight: bold; white-space: nowrap; }
 
-        /* ═══════════════════════════════════
-           FIELD
-        ═══════════════════════════════════ */
-        .field-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1.5 / 1;
-            background-color: var(--field-green);
-            border: 3px solid var(--line-white);
-            overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        .setup-input {
+            width: 58px; padding: 5px 7px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1); color: #fff;
+            font-size: 0.95em; text-align: center;
+        }
+        .setup-input::-webkit-inner-spin-button { opacity: 0.6; }
+
+        /* Separator line between setup rows */
+        .setup-divider {
+            border: none; border-top: 1px solid var(--panel-border); margin: 0;
         }
 
-        .goal-line      { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background-color: var(--line-white); }
-        .half-field-line{ position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background-color: var(--line-white); }
-        .sideline-top   { position: absolute; top: 0; left: 0; right: 0; height: 3px; background-color: var(--line-white); }
-        .sideline-bottom{ position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background-color: var(--line-white); }
-        .goal-box       { position: absolute; left: 0; top: 25%; width: 10%; height: 50%; border: 3px solid var(--line-white); border-left: none; }
-        .penalty-box    { position: absolute; left: 0; top: 15%; width: 25%; height: 70%; border: 3px solid var(--line-white); border-left: none; }
-
-        .player-oval {
-            position: absolute;
-            width: 100px; height: 60px;
-            background-color: rgba(0,0,0,0.7);
-            border-radius: 50%;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            cursor: move;
-            touch-action: none;
-            z-index: 10;
-            box-shadow: 0 0 10px var(--accent-color);
+        /* Export/import dropdown inside setup panel */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-button {
+            background: rgba(255,255,255,0.15); color: #fff;
+            padding: 6px 13px; font-size: 0.85em;
+            border: 1px solid var(--panel-border); border-radius: 5px; cursor: pointer;
         }
-        .player-oval .player-name-on-map {
-            font-size: 14px; font-weight: bold; color: var(--accent-color);
+        .dropdown-content {
+            display: none; position: absolute;
+            background: #f1f1f1; min-width: 170px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+            z-index: 100; border-radius: 5px; right: 0; top: 110%;
         }
-
-        /* ═══════════════════════════════════
-           TIMERS & CONTROLS
-        ═══════════════════════════════════ */
-        .timers-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin: 16px 0;
-            flex-wrap: wrap;
-            gap: 20px;
+        .dropdown-content a {
+            color: #333; padding: 11px 15px;
+            text-decoration: none; display: block; cursor: pointer; font-size: 0.9em;
         }
+        .dropdown-content a:hover { background: #ddd; }
+        .dropdown:hover .dropdown-content { display: block; }
 
-        .master-timer-container { text-align: center; }
-        .master-timer-container > label { display: block; margin-bottom: 5px; }
+        /* Add player form inside panel */
+        .add-player-form {
+            display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        }
+        #new-player-name {
+            flex: 1; min-width: 110px;
+            padding: 8px 10px;
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 5px;
+            background: rgba(255,255,255,0.1); color: #fff; font-size: 0.95em;
+        }
+        #new-player-name::placeholder { color: rgba(255,255,255,0.45); }
+        #add-player-button {
+            padding: 8px 16px; font-size: 0.9em;
+            border: none; border-radius: 5px;
+            background: var(--field-green); color: #fff;
+            cursor: pointer; white-space: nowrap; transition: background 0.2s;
+        }
+        #add-player-button:hover { background: var(--dark-green); }
+
+        /* Max-on-field row inside panel */
+        #field-count-badge {
+            font-size: 0.82em; background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 12px;
+            padding: 3px 9px; color: rgba(255,255,255,0.75); white-space: nowrap;
+        }
+        #field-count-badge.at-max   { background: rgba(40,167,69,0.35); border-color: #28a745; color: #a8ffa8; font-weight: bold; }
+        #field-count-badge.under-max { background: rgba(123,47,190,0.35); border-color: var(--add-color); color: #d5b0ff; font-weight: bold; }
+
+        /* ════════════════════════════════
+           MASTER TIMER AREA  (always visible)
+        ════════════════════════════════ */
+        .timer-area {
+            text-align: center;
+            margin: 6px 0 8px;
+        }
 
         #master-timer {
-            font-size: 2.5em; font-weight: bold;
+            font-size: 3em; font-weight: bold;
             color: var(--accent-color);
-            background-color: rgba(0,0,0,0.3);
-            padding: 10px 20px;
-            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 22px; border-radius: 12px;
+            display: inline-block;
+            line-height: 1.15;
         }
 
         .controls {
-            display: flex; gap: 10px;
-            margin-top: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
+            display: flex; gap: 8px;
+            margin-top: 8px; justify-content: center; flex-wrap: wrap;
         }
 
         .control-button {
-            padding: 10px 20px; font-size: 1em;
-            border: none; border-radius: 5px;
-            background-color: var(--button-color);
-            color: var(--text-color);
-            cursor: pointer;
-            transition: background-color 0.3s;
+            padding: 11px 22px; font-size: 1em;
+            border: none; border-radius: 6px;
+            background: var(--button-color); color: #fff;
+            cursor: pointer; transition: background 0.25s;
         }
-        .control-button:hover { background-color: var(--button-hover); }
+        .control-button:hover { background: var(--button-hover); }
 
-        #reset-button { background-color: var(--reset-color); }
-        #reset-button:hover { background-color: var(--reset-hover); }
+        #reset-button { background: var(--reset-color); }
+        #reset-button:hover { background: var(--reset-hover); }
 
         #sub-now-button {
-            background-color: var(--queue-color);
+            background: var(--queue-color);
             display: none; font-weight: bold;
             animation: pulse-orange 1.4s infinite;
         }
-        #sub-now-button:hover { background-color: var(--queue-hover); animation: none; }
+        #sub-now-button:hover { background: var(--queue-hover); animation: none; }
 
         @keyframes pulse-orange {
             0%   { box-shadow: 0 0 0 0 rgba(255,140,0,0.7); }
@@ -211,234 +255,187 @@
             100% { box-shadow: 0 0 0 0 rgba(255,140,0,0); }
         }
 
-        /* ── Sub Timer ── */
-        #sub-timer-section {
-            margin-top: 14px;
-            display: flex; flex-direction: column;
-            align-items: center; gap: 6px;
-            font-size: 0.9em; opacity: 0.9;
-        }
-        .sub-timer-controls {
-            display: flex; align-items: center; gap: 6px;
-            color: rgba(255,255,255,0.85);
-        }
-        #sub-timer-enabled { transform: scale(1.1); cursor: pointer; }
-        #sub-timer-duration {
-            width: 48px; padding: 3px 5px;
-            border-radius: 4px; border: 1px solid #ccc;
-            font-size: 0.95em; text-align: center;
-        }
+        /* Sub timer display (always visible when enabled) */
         #sub-timer-display {
-            font-size: 1.25em; font-weight: bold;
-            color: rgba(255,255,255,0.9);
-            font-variant-numeric: tabular-nums;
-            letter-spacing: 1px;
-            min-width: 70px; text-align: center;
+            margin-top: 5px;
+            font-size: 1.1em; font-weight: bold;
+            color: rgba(255,255,255,0.82);
+            font-variant-numeric: tabular-nums; letter-spacing: 1px;
         }
-        #sub-timer-display.inactive { opacity: 0.45; }
+        #sub-timer-display::before { content: '⏱ next sub: '; font-size: 0.8em; font-weight: normal; opacity: 0.7; }
+        #sub-timer-display.inactive { opacity: 0.4; }
         #sub-timer-display.warning  { color: #FFB347; }
         #sub-timer-display.expired  { color: #ff5b5b; animation: flash 0.5s 4; }
         #sub-timer-display.hidden   { display: none; }
 
-        @keyframes flash { 50% { opacity: 0.3; } }
+        @keyframes flash { 50% { opacity: 0.25; } }
 
-        /* ── Save Dropdown ── */
-        .dropdown { position: relative; display: inline-block; }
-        .dropdown-button {
-            background-color: var(--accent-color); color: var(--dark-green);
-            padding: 10px 15px; font-size: 1.2em;
-            border: none; border-radius: 5px; cursor: pointer;
+        /* ════════════════════════════════
+           FIELD
+        ════════════════════════════════ */
+        .field-container {
+            position: relative;
+            width: 100%; aspect-ratio: 1.5 / 1;
+            background: var(--field-green);
+            border: 3px solid var(--line-white);
+            overflow: hidden; border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.45);
+            margin-bottom: 10px;
         }
-        .dropdown-content {
-            display: none; position: absolute;
-            background-color: #f1f1f1; min-width: 160px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            z-index: 100; border-radius: 5px; right: 0;
-        }
-        .dropdown-content a { color: #333; padding: 12px 16px; text-decoration: none; display: block; cursor: pointer; }
-        .dropdown-content a:hover { background-color: #ddd; }
-        .dropdown:hover .dropdown-content { display: block; }
 
-        /* ═══════════════════════════════════
-           PLAYER MANAGEMENT
-        ═══════════════════════════════════ */
+        .goal-line       { position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--line-white); }
+        .half-field-line { position:absolute; right:0; top:0; bottom:0; width:3px; background:var(--line-white); }
+        .sideline-top    { position:absolute; top:0; left:0; right:0; height:3px; background:var(--line-white); }
+        .sideline-bottom { position:absolute; bottom:0; left:0; right:0; height:3px; background:var(--line-white); }
+        .goal-box        { position:absolute; left:0; top:25%; width:10%; height:50%; border:3px solid var(--line-white); border-left:none; }
+        .penalty-box     { position:absolute; left:0; top:15%; width:25%; height:70%; border:3px solid var(--line-white); border-left:none; }
+
+        .player-oval {
+            position: absolute; width: 100px; height: 60px;
+            background: rgba(0,0,0,0.7); border-radius: 50%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: move; touch-action: none; z-index: 10;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+        .player-oval .player-name-on-map {
+            font-size: 14px; font-weight: bold; color: var(--accent-color);
+        }
+
+        /* ════════════════════════════════
+           PLAYER LIST  (always visible)
+        ════════════════════════════════ */
         .player-management {
-            background-color: var(--light-green);
-            padding: 20px; border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            background: var(--light-green);
+            padding: 12px 14px; border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.25);
             color: #333;
         }
 
-        .add-player-form {
-            display: flex; gap: 10px;
-            margin-bottom: 12px;
-            flex-wrap: wrap; align-items: center;
+        #player-list-comment {
+            font-style: italic; color: #666;
+            margin: 0 0 8px; text-align: center; font-size: 0.85em;
         }
-        #new-player-name {
-            flex-grow: 1; min-width: 120px;
-            padding: 10px; border: 1px solid #ccc; border-radius: 5px;
-        }
-        #add-player-button {
-            padding: 10px 20px; font-size: 1em;
-            border: none; border-radius: 5px;
-            background-color: var(--field-green);
-            color: var(--text-color); cursor: pointer;
-            transition: background-color 0.3s; white-space: nowrap;
-        }
-        #add-player-button:hover { background-color: var(--dark-green); }
 
-        .field-size-row {
-            display: flex; align-items: center; gap: 8px;
-            margin-bottom: 14px; font-size: 0.95em; color: #444;
-            flex-wrap: wrap;
-        }
-        .field-size-row label { font-weight: bold; white-space: nowrap; }
-        #max-on-field {
-            width: 56px; padding: 6px 8px;
-            border: 1px solid #ccc; border-radius: 5px;
-            font-size: 1em; text-align: center;
-        }
-        #field-count-badge {
-            font-size: 0.88em; background: #fff;
-            border: 1px solid #ccc; border-radius: 12px;
-            padding: 3px 10px; color: #555; white-space: nowrap;
-        }
-        #field-count-badge.at-max  { background: #d4edda; border-color: #28a745; color: #155724; font-weight: bold; }
-        #field-count-badge.under-max { background: #e8d5f8; border-color: var(--add-color); color: var(--add-color); font-weight: bold; }
-
-        #player-list-comment { font-style: italic; color: #555; margin-bottom: 10px; text-align: center; }
         #player-list { list-style: none; padding: 0; margin: 0; }
 
         .player-item {
             display: flex; justify-content: space-between; align-items: center;
-            background-color: #fff; padding: 10px;
-            border-radius: 5px; margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: #fff; padding: 9px 10px;
+            border-radius: 6px; margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .player-info { display: flex; flex-direction: column; align-items: flex-start; }
-        .player-name { font-weight: bold; font-size: 1.1em; }
-        .player-timer { font-size: 1.2em; color: var(--dark-green); }
-        .player-controls { display: flex; align-items: center; gap: 8px; }
+        .player-info { display: flex; flex-direction: column; }
+        .player-name { font-weight: bold; font-size: 1.05em; }
+        .player-timer { font-size: 1.15em; color: var(--dark-green); }
+        .player-controls { display: flex; align-items: center; gap: 7px; }
 
         .sub-toggle-button {
-            padding: 8px 12px; border: none; border-radius: 5px;
-            color: white; cursor: pointer;
-            transition: background-color 0.3s;
-            width: 80px; font-weight: bold;
+            padding: 8px 10px; border: none; border-radius: 5px;
+            color: #fff; cursor: pointer;
+            transition: background 0.25s; width: 78px; font-weight: bold;
         }
-        .sub-toggle-button.is-subbed-out { background-color: var(--button-color); }
-        .sub-toggle-button.is-subbed-out:hover { background-color: var(--button-hover); }
-        .sub-toggle-button.is-subbed-in { background-color: var(--sub-out-color); }
-        .sub-toggle-button.is-subbed-in:hover { background-color: var(--sub-out-hover); }
+        .sub-toggle-button.is-subbed-out { background: var(--button-color); }
+        .sub-toggle-button.is-subbed-out:hover { background: var(--button-hover); }
+        .sub-toggle-button.is-subbed-in { background: var(--sub-out-color); }
+        .sub-toggle-button.is-subbed-in:hover { background: var(--sub-out-hover); }
 
         .queued-button {
-            padding: 8px 12px; border: none; border-radius: 5px;
-            color: white; background-color: var(--queue-color);
-            width: 80px; font-weight: bold; cursor: default; opacity: 0.9;
+            padding: 8px 10px; border: none; border-radius: 5px;
+            color: #fff; background: var(--queue-color);
+            width: 78px; font-weight: bold; cursor: default; opacity: 0.9;
         }
 
         .add-to-field-button {
             padding: 8px 0; border: none; border-radius: 5px;
-            color: white; background-color: var(--add-color);
-            width: 80px; font-size: 1.3em; font-weight: bold;
-            cursor: pointer; transition: background-color 0.2s; line-height: 1;
+            color: #fff; background: var(--add-color);
+            width: 78px; font-size: 1.3em; font-weight: bold;
+            cursor: pointer; transition: background 0.2s; line-height: 1;
         }
-        .add-to-field-button:hover { background-color: var(--add-hover); }
-        .add-to-field-button.already-on-field { opacity: 0.35; cursor: default; }
+        .add-to-field-button:hover { background: var(--add-hover); }
+        .add-to-field-button.already-on-field { opacity: 0.3; cursor: default; }
 
         .remove-player-button {
-            background-color: transparent; border: none;
-            color: var(--sub-out-color); font-size: 1.5rem;
-            cursor: pointer; padding: 0 5px; line-height: 1;
-            transition: opacity 0.3s;
+            background: transparent; border: none;
+            color: var(--sub-out-color); font-size: 1.4rem;
+            cursor: pointer; padding: 0 4px; line-height: 1; transition: opacity 0.25s;
         }
-        .remove-player-button:hover { opacity: 0.7; }
+        .remove-player-button:hover { opacity: 0.65; }
 
-        /* ═══════════════════════════════════
-           MODALS  (shared base styles)
-        ═══════════════════════════════════ */
+        /* ════════════════════════════════
+           MODALS
+        ════════════════════════════════ */
         .modal-overlay {
             display: none; position: fixed; inset: 0;
-            background-color: rgba(0,0,0,0.6);
-            z-index: 200;
+            background: rgba(0,0,0,0.6); z-index: 200;
             justify-content: center; align-items: center;
         }
         .modal-overlay.open { display: flex; }
 
         .modal {
-            background-color: #fff; color: #333;
-            border-radius: 12px; padding: 24px;
-            width: 90%; max-width: 360px;
+            background: #fff; color: #333;
+            border-radius: 12px; padding: 22px;
+            width: 90%; max-width: 350px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            display: flex; flex-direction: column; gap: 16px;
+            display: flex; flex-direction: column; gap: 14px;
         }
-        .modal h2 { margin: 0; font-size: 1.2em; color: var(--dark-green); text-align: center; }
+        .modal h2 { margin: 0; font-size: 1.15em; color: var(--dark-green); text-align: center; }
         .modal-player-label {
-            font-weight: bold; font-size: 1.05em; text-align: center;
+            font-weight: bold; text-align: center;
             background: var(--light-green); padding: 8px; border-radius: 6px;
         }
         .modal select, .modal input[type="text"] {
-            width: 100%; padding: 10px;
-            border: 1px solid #ccc; border-radius: 6px;
-            font-size: 1em;
+            width: 100%; padding: 9px;
+            border: 1px solid #ccc; border-radius: 6px; font-size: 1em;
         }
         .modal-actions { display: flex; gap: 10px; justify-content: center; }
 
         .modal-queue-btn {
-            padding: 10px 24px; font-size: 1em; font-weight: bold;
+            padding: 9px 22px; font-size: 1em; font-weight: bold;
             border: none; border-radius: 6px;
-            background-color: var(--queue-color); color: white;
-            cursor: pointer; transition: background-color 0.2s;
+            background: var(--queue-color); color: #fff; cursor: pointer;
         }
-        .modal-queue-btn:hover { background-color: var(--queue-hover); }
-
+        .modal-queue-btn:hover { background: var(--queue-hover); }
         .modal-confirm-btn {
-            padding: 10px 24px; font-size: 1em; font-weight: bold;
+            padding: 9px 22px; font-size: 1em; font-weight: bold;
             border: none; border-radius: 6px;
-            background-color: var(--button-color); color: white;
-            cursor: pointer; transition: background-color 0.2s;
+            background: var(--button-color); color: #fff; cursor: pointer;
         }
-        .modal-confirm-btn:hover { background-color: var(--button-hover); }
-
+        .modal-confirm-btn:hover { background: var(--button-hover); }
         .modal-cancel-btn {
-            padding: 10px 24px; font-size: 1em;
+            padding: 9px 22px; font-size: 1em;
             border: none; border-radius: 6px;
-            background-color: var(--reset-color); color: white;
-            cursor: pointer; transition: background-color 0.2s;
+            background: var(--reset-color); color: #fff; cursor: pointer;
         }
-        .modal-cancel-btn:hover { background-color: var(--reset-hover); }
+        .modal-cancel-btn:hover { background: var(--reset-hover); }
 
-        /* ═══════════════════════════════════
-           RESPONSIVE
-        ═══════════════════════════════════ */
-        @media (max-width: 600px) {
-            h1 { font-size: 1.5em; }
-            .player-oval { width: 80px; height: 50px; }
+        /* ════════════════════════════════
+           RESPONSIVE TWEAKS
+        ════════════════════════════════ */
+        @media (max-width: 480px) {
+            #master-timer { font-size: 2.4em; padding: 7px 18px; }
+            .control-button { padding: 10px 16px; font-size: 0.95em; }
+            .player-oval { width: 82px; height: 52px; }
             .player-oval .player-name-on-map { font-size: 12px; }
-            .timers-container { flex-direction: column; }
-            .add-player-form { flex-direction: column; }
-            #profile-bar { gap: 6px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ── Substitution queue modal ── -->
+    <!-- ── Sub queue modal ── -->
     <div class="modal-overlay" id="sub-modal">
         <div class="modal">
             <h2 id="modal-title">Queue Substitution</h2>
             <div class="modal-player-label" id="modal-player-label"></div>
-            <select id="modal-select">
-                <option value="">— select a player —</option>
-            </select>
+            <select id="modal-select"><option value="">— select a player —</option></select>
             <div class="modal-actions">
-                <button class="modal-queue-btn"   id="modal-queue-btn">Queue</button>
-                <button class="modal-cancel-btn"  id="modal-cancel-btn">Cancel</button>
+                <button class="modal-queue-btn"  id="modal-queue-btn">Queue</button>
+                <button class="modal-cancel-btn" id="modal-cancel-btn">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- ── Profile name modal (new / rename) ── -->
+    <!-- ── Profile name modal ── -->
     <div class="modal-overlay" id="profile-modal">
         <div class="modal">
             <h2 id="profile-modal-title">New Team Profile</h2>
@@ -451,31 +448,36 @@
     </div>
 
     <div class="container">
-        <h1>Soccer Substitution Tracker</h1>
 
-        <!-- ── Profile bar ── -->
-        <div id="profile-bar">
-            <label for="profile-select">Team:</label>
-            <select id="profile-select"></select>
-            <button class="profile-btn" id="profile-new-btn">+ New</button>
-            <button class="profile-btn" id="profile-rename-btn">Rename</button>
-            <button class="profile-btn" id="profile-delete-btn">Delete</button>
+        <!-- ══ Always-visible game bar ══ -->
+        <div id="game-bar">
+            <span id="active-profile-name">My Team</span>
             <span id="autosave-indicator">—</span>
+            <button id="setup-toggle-btn">⚙ Setup ▾</button>
         </div>
 
-        <!-- ── Master timer ── -->
-        <div class="timers-container">
-            <div class="master-timer-container">
-                <label for="match-duration">Set Match Duration (minutes):</label>
-                <input type="number" id="match-duration" value="45" min="1"
-                       style="width:60px;padding:5px;border-radius:5px;border:1px solid #ccc;">
-                <div id="master-timer">45:00</div>
-                <div class="controls">
-                    <button id="play-pause-resume" class="control-button">Play</button>
-                    <button id="sub-now-button"    class="control-button">⚡ Sub Now!</button>
-                    <button id="reset-button"      class="control-button">Reset</button>
-                    <div class="dropdown">
-                        <button class="dropdown-button">💾</button>
+        <!-- ══ Collapsible setup panel ══ -->
+        <div id="setup-panel-wrap">
+            <div id="setup-panel">
+
+                <!-- Profile management -->
+                <div id="profile-row">
+                    <label for="profile-select">Team:</label>
+                    <select id="profile-select"></select>
+                    <button class="profile-btn" id="profile-new-btn">+ New</button>
+                    <button class="profile-btn" id="profile-rename-btn">Rename</button>
+                    <button class="profile-btn" id="profile-delete-btn">Delete</button>
+                </div>
+
+                <hr class="setup-divider">
+
+                <!-- Match settings -->
+                <div class="setup-row">
+                    <label for="match-duration">Match duration:</label>
+                    <input type="number" id="match-duration" value="45" min="1" class="setup-input">
+                    <span>min</span>
+                    <div class="dropdown" style="margin-left:auto;">
+                        <button class="dropdown-button">💾 Data</button>
                         <div class="dropdown-content">
                             <a id="export-data">Export all profiles</a>
                             <a id="import-data-label">Import profiles</a>
@@ -483,18 +485,47 @@
                         </div>
                     </div>
                 </div>
-                <div id="sub-timer-section">
-                    <div class="sub-timer-controls">
-                        <label><input type="checkbox" id="sub-timer-enabled"> Sub Timer:</label>
-                        <input type="number" id="sub-timer-duration" value="5" min="1" max="60">
-                        <span>min</span>
-                    </div>
-                    <div id="sub-timer-display" class="hidden">05:00</div>
+
+                <!-- Sub timer settings -->
+                <div class="setup-row">
+                    <label>
+                        <input type="checkbox" id="sub-timer-enabled">
+                        Sub reminder every
+                    </label>
+                    <input type="number" id="sub-timer-duration" value="5" min="1" max="60" class="setup-input">
+                    <span>min</span>
                 </div>
+
+                <hr class="setup-divider">
+
+                <!-- Add player -->
+                <div class="add-player-form">
+                    <input type="text" id="new-player-name" placeholder="Add player name…">
+                    <button id="add-player-button">Add Player</button>
+                </div>
+
+                <!-- Max on field -->
+                <div class="setup-row">
+                    <label for="max-on-field">Players on field:</label>
+                    <input type="number" id="max-on-field" value="7" min="1" max="99" class="setup-input">
+                    <span id="field-count-badge">0 / 7</span>
+                </div>
+
+            </div><!-- /#setup-panel -->
+        </div><!-- /#setup-panel-wrap -->
+
+        <!-- ══ Master timer (always visible) ══ -->
+        <div class="timer-area">
+            <div id="master-timer">45:00</div>
+            <div class="controls">
+                <button id="play-pause-resume" class="control-button">Play</button>
+                <button id="sub-now-button"    class="control-button">⚡ Sub Now!</button>
+                <button id="reset-button"      class="control-button">Reset</button>
             </div>
+            <div id="sub-timer-display" class="hidden">05:00</div>
         </div>
 
-        <!-- ── Field ── -->
+        <!-- ══ Field (always visible) ══ -->
         <div class="field-container" id="field">
             <div class="goal-line"></div>
             <div class="half-field-line"></div>
@@ -504,86 +535,96 @@
             <div class="penalty-box"></div>
         </div>
 
-        <!-- ── Player management ── -->
+        <!-- ══ Player list (always visible) ══ -->
         <div class="player-management">
-            <div class="add-player-form">
-                <input type="text" id="new-player-name" placeholder="Enter New Player's Name">
-                <button id="add-player-button">Add Player</button>
-            </div>
-            <div class="field-size-row">
-                <label for="max-on-field">Players on field:</label>
-                <input type="number" id="max-on-field" value="7" min="1" max="99">
-                <span id="field-count-badge">0 / 7 on field</span>
-            </div>
-            <p id="player-list-comment">Players are sorted by who has been in the game the longest.</p>
+            <p id="player-list-comment">Sorted by time on field (longest first)</p>
             <ul id="player-list"></ul>
         </div>
-    </div>
+
+    </div><!-- /.container -->
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  DOM REFS
-        // ════════════════════════════════════════════════════════
-        const field               = document.getElementById('field');
-        const masterTimerEl       = document.getElementById('master-timer');
-        const playPauseResumeBtn  = document.getElementById('play-pause-resume');
-        const subNowBtn           = document.getElementById('sub-now-button');
-        const resetBtn            = document.getElementById('reset-button');
-        const matchDurationInput  = document.getElementById('match-duration');
-        const newPlayerNameInput  = document.getElementById('new-player-name');
-        const addPlayerBtn        = document.getElementById('add-player-button');
-        const playerList          = document.getElementById('player-list');
-        const maxOnFieldInput     = document.getElementById('max-on-field');
-        const fieldCountBadge     = document.getElementById('field-count-badge');
-        const exportDataBtn       = document.getElementById('export-data');
-        const importDataLabel     = document.getElementById('import-data-label');
-        const importFileInput     = document.getElementById('import-file');
+        // ════════════════════════════════════════════
+        const field                 = document.getElementById('field');
+        const masterTimerEl         = document.getElementById('master-timer');
+        const playPauseResumeBtn    = document.getElementById('play-pause-resume');
+        const subNowBtn             = document.getElementById('sub-now-button');
+        const resetBtn              = document.getElementById('reset-button');
+        const matchDurationInput    = document.getElementById('match-duration');
+        const newPlayerNameInput    = document.getElementById('new-player-name');
+        const addPlayerBtn          = document.getElementById('add-player-button');
+        const playerList            = document.getElementById('player-list');
+        const maxOnFieldInput       = document.getElementById('max-on-field');
+        const fieldCountBadge       = document.getElementById('field-count-badge');
+        const exportDataBtn         = document.getElementById('export-data');
+        const importDataLabel       = document.getElementById('import-data-label');
+        const importFileInput       = document.getElementById('import-file');
         const subTimerEnabledInput  = document.getElementById('sub-timer-enabled');
         const subTimerDurationInput = document.getElementById('sub-timer-duration');
         const subTimerDisplay       = document.getElementById('sub-timer-display');
+        // Game bar
+        const activeProfileName     = document.getElementById('active-profile-name');
+        const autosaveIndicator     = document.getElementById('autosave-indicator');
+        const setupToggleBtn        = document.getElementById('setup-toggle-btn');
+        const setupPanelWrap        = document.getElementById('setup-panel-wrap');
         // Profile bar
-        const profileSelect       = document.getElementById('profile-select');
-        const profileNewBtn       = document.getElementById('profile-new-btn');
-        const profileRenameBtn    = document.getElementById('profile-rename-btn');
-        const profileDeleteBtn    = document.getElementById('profile-delete-btn');
-        const autosaveIndicator   = document.getElementById('autosave-indicator');
-        // Sub modal
-        const subModal            = document.getElementById('sub-modal');
-        const modalTitle          = document.getElementById('modal-title');
-        const modalPlayerLabel    = document.getElementById('modal-player-label');
-        const modalSelect         = document.getElementById('modal-select');
-        const modalQueueBtn       = document.getElementById('modal-queue-btn');
-        const modalCancelBtn      = document.getElementById('modal-cancel-btn');
-        // Profile modal
-        const profileModal        = document.getElementById('profile-modal');
-        const profileModalTitle   = document.getElementById('profile-modal-title');
-        const profileModalInput   = document.getElementById('profile-modal-input');
-        const profileModalConfirm = document.getElementById('profile-modal-confirm');
-        const profileModalCancel  = document.getElementById('profile-modal-cancel');
+        const profileSelect         = document.getElementById('profile-select');
+        const profileNewBtn         = document.getElementById('profile-new-btn');
+        const profileRenameBtn      = document.getElementById('profile-rename-btn');
+        const profileDeleteBtn      = document.getElementById('profile-delete-btn');
+        // Modals
+        const subModal              = document.getElementById('sub-modal');
+        const modalTitle            = document.getElementById('modal-title');
+        const modalPlayerLabel      = document.getElementById('modal-player-label');
+        const modalSelect           = document.getElementById('modal-select');
+        const modalQueueBtn         = document.getElementById('modal-queue-btn');
+        const modalCancelBtn        = document.getElementById('modal-cancel-btn');
+        const profileModal          = document.getElementById('profile-modal');
+        const profileModalTitle     = document.getElementById('profile-modal-title');
+        const profileModalInput     = document.getElementById('profile-modal-input');
+        const profileModalConfirm   = document.getElementById('profile-modal-confirm');
+        const profileModalCancel    = document.getElementById('profile-modal-cancel');
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
+        //  SETUP PANEL TOGGLE
+        // ════════════════════════════════════════════
+        const LS_SETUP_OPEN = 'soccerTracker_setupOpen';
+
+        const isSetupOpen = () => localStorage.getItem(LS_SETUP_OPEN) === 'true';
+
+        const setSetupOpen = (open) => {
+            localStorage.setItem(LS_SETUP_OPEN, open ? 'true' : 'false');
+            setupPanelWrap.classList.toggle('open', open);
+            setupToggleBtn.classList.toggle('open', open);
+            setupToggleBtn.textContent = open ? '⚙ Setup ▴' : '⚙ Setup ▾';
+        };
+
+        setupToggleBtn.addEventListener('click', () => setSetupOpen(!isSetupOpen()));
+
+        // ════════════════════════════════════════════
         //  RUNTIME STATE
-        // ════════════════════════════════════════════════════════
-        let players = [];
+        // ════════════════════════════════════════════
+        let players               = [];
         let timerInterval;
         let timerState            = 'paused';
         let playStartWallTime     = null;
         let masterTimeAtPlayStart = 0;
         let masterTimeRemaining   = parseInt(matchDurationInput.value) * 60;
 
-        let pendingSubs   = [];
-        let modalContext  = null;
+        let pendingSubs  = [];
+        let modalContext = null;
 
-        // Sub-timer (wall-clock based, same pattern as master timer)
         let subTimerActive          = false;
         let subTimerStartWallTime   = null;
         let subTimerPausedRemaining = null;
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  AUDIO ENGINE
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         let audioCtx = null;
         const ensureAudio = () => {
             if (!audioCtx) {
@@ -597,8 +638,7 @@
         const playTap = () => {
             const ctx = ensureAudio(); if (!ctx) return;
             const t = ctx.currentTime;
-            const osc = ctx.createOscillator();
-            const gn  = ctx.createGain();
+            const osc = ctx.createOscillator(), gn = ctx.createGain();
             osc.connect(gn); gn.connect(ctx.destination);
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(1400, t);
@@ -610,17 +650,17 @@
 
         const playBuzz = () => {
             const ctx = ensureAudio(); if (!ctx) return;
-            const t = ctx.currentTime, dur = 2.0, pulseHz = 6;
+            const t = ctx.currentTime, dur = 2.0, ph = 6;
             const o1 = ctx.createOscillator(), o2 = ctx.createOscillator();
             const gn = ctx.createGain();
             o1.connect(gn); o2.connect(gn); gn.connect(ctx.destination);
             o1.type = o2.type = 'square';
             o1.frequency.value = 220; o2.frequency.value = 233;
             gn.gain.setValueAtTime(0.0001, t);
-            for (let i = 0; i < dur * pulseHz; i++) {
-                const ti = t + i / pulseHz;
+            for (let i = 0; i < dur * ph; i++) {
+                const ti = t + i / ph;
                 gn.gain.linearRampToValueAtTime(0.32, ti + 0.04);
-                gn.gain.linearRampToValueAtTime(0.05, ti + 1 / pulseHz);
+                gn.gain.linearRampToValueAtTime(0.05, ti + 1 / ph);
             }
             gn.gain.linearRampToValueAtTime(0.0001, t + dur);
             o1.start(t); o2.start(t);
@@ -633,12 +673,9 @@
             playTap();
         });
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  PROFILE STORAGE
-        //  localStorage keys:
-        //    soccerTracker_profiles        → JSON array of profile objects
-        //    soccerTracker_activeProfileId → string id
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         const LS_PROFILES  = 'soccerTracker_profiles';
         const LS_ACTIVE_ID = 'soccerTracker_activeProfileId';
 
@@ -646,52 +683,42 @@
             try { return JSON.parse(localStorage.getItem(LS_PROFILES)) || []; }
             catch { return []; }
         };
+        const saveAllProfiles = (p) => localStorage.setItem(LS_PROFILES, JSON.stringify(p));
+        const getActiveId     = () => localStorage.getItem(LS_ACTIVE_ID) || null;
+        const setActiveId     = (id) => localStorage.setItem(LS_ACTIVE_ID, id);
 
-        const saveAllProfiles = (profiles) => {
-            localStorage.setItem(LS_PROFILES, JSON.stringify(profiles));
-        };
-
-        const getActiveId = () => localStorage.getItem(LS_ACTIVE_ID) || null;
-
-        const setActiveId = (id) => localStorage.setItem(LS_ACTIVE_ID, id);
-
-        // Build a data snapshot from current runtime state (no side effects).
         const snapshotData = () => {
-            const isPlaying = timerState === 'playing';
-            const elapsed   = elapsedSincePlay();
+            const playing = timerState === 'playing';
             let subRem = null;
             if (subTimerActive) subRem = Math.max(0, subTimerRemaining());
             return {
                 players: players.map(p => ({
                     ...p,
-                    time: isPlaying && p.inGame && p.gameStartWallTime !== null
+                    time: playing && p.inGame && p.gameStartWallTime !== null
                         ? p.time + (Date.now() - p.gameStartWallTime) / 1000
                         : p.time,
                     gameStartWallTime: null
                 })),
-                masterTimeRemaining: isPlaying
-                    ? Math.max(0, masterTimeAtPlayStart - elapsed)
+                masterTimeRemaining: playing
+                    ? Math.max(0, masterTimeAtPlayStart - elapsedSincePlay())
                     : masterTimeRemaining,
                 matchDuration:      parseInt(matchDurationInput.value),
                 maxOnField:         parseInt(maxOnFieldInput.value),
                 subTimerEnabled:    subTimerEnabledInput.checked,
                 subTimerMinutes:    parseInt(subTimerDurationInput.value),
                 subTimerActive,
-                subTimerRemaining:  subRem
+                subTimerRemaining: subRem
             };
         };
 
-        // Write current state into the active profile and persist.
-        let _autosaveTimer = null;
+        let _saveTimer = null;
         const autoSave = () => {
             autosaveIndicator.textContent = 'saving…';
             autosaveIndicator.className   = 'saving';
-            // Debounce 400ms so rapid UI interactions don't hammer storage.
-            clearTimeout(_autosaveTimer);
-            _autosaveTimer = setTimeout(() => {
+            clearTimeout(_saveTimer);
+            _saveTimer = setTimeout(() => {
                 const profiles = loadAllProfiles();
-                const id = getActiveId();
-                const idx = profiles.findIndex(p => p.id === id);
+                const idx = profiles.findIndex(p => p.id === getActiveId());
                 if (idx !== -1) {
                     profiles[idx].data         = snapshotData();
                     profiles[idx].lastModified = new Date().toISOString();
@@ -706,16 +733,13 @@
             }, 400);
         };
 
-        // Apply a data blob to runtime state (used by switch/import).
         const applyData = (data) => {
-            // Graceful defaults for missing keys.
-            players             = (data.players || []).map(p => ({ ...p, gameStartWallTime: null }));
-            masterTimeRemaining = data.masterTimeRemaining ?? (parseInt(matchDurationInput.value) * 60 || 2700);
+            players = (data.players || []).map(p => ({ ...p, gameStartWallTime: null }));
+            masterTimeRemaining           = data.masterTimeRemaining ?? 45 * 60;
             matchDurationInput.value      = data.matchDuration   ?? 45;
             maxOnFieldInput.value         = data.maxOnField       ?? 7;
             subTimerEnabledInput.checked  = !!data.subTimerEnabled;
             subTimerDurationInput.value   = data.subTimerMinutes  ?? 5;
-
             subTimerActive          = false;
             subTimerStartWallTime   = null;
             subTimerPausedRemaining = null;
@@ -725,7 +749,6 @@
             }
         };
 
-        // Create a brand-new profile object with default data.
         const makeProfile = (name) => ({
             id:           Date.now().toString(36) + Math.random().toString(36).slice(2),
             name,
@@ -739,104 +762,84 @@
             }
         });
 
-        // ── Render profile <select> ──────────────────────────────
+        // ── Render profile <select> and game-bar name ─────────────
         const renderProfileSelect = () => {
             const profiles = loadAllProfiles();
             const activeId = getActiveId();
             profileSelect.innerHTML = '';
             profiles.forEach(p => {
-                const opt    = document.createElement('option');
-                opt.value    = p.id;
+                const opt = document.createElement('option');
+                opt.value = p.id;
                 opt.textContent = p.name;
                 if (p.id === activeId) opt.selected = true;
                 profileSelect.appendChild(opt);
             });
-            // Disable delete if only one profile left.
             profileDeleteBtn.disabled = profiles.length <= 1;
+            const active = profiles.find(p => p.id === activeId);
+            activeProfileName.textContent = active ? active.name : '—';
         };
 
-        // Switch to a profile (save current first, then load the new one).
+        // ── Switch profile ────────────────────────────────────────
         const switchToProfile = (id) => {
-            // Stop any running timer before switching.
             if (timerState === 'playing') pauseTimers();
-
-            // Persist current state into the old active profile.
             autoSave();
-
             setActiveId(id);
-            const profiles = loadAllProfiles();
-            const profile  = profiles.find(p => p.id === id);
+            const profile = loadAllProfiles().find(p => p.id === id);
             if (!profile) return;
-
             applyData(profile.data);
-
-            // Reset volatile runtime state.
-            pendingSubs  = [];
-            timerState   = 'paused';
-            playStartWallTime = null;
+            pendingSubs = []; timerState = 'paused'; playStartWallTime = null;
             playPauseResumeBtn.textContent = 'Play';
-
-            updateSubNowButton();
-            updateMasterTimerDisplay();
-            updateSubTimerDisplay();
-            renderProfileSelect();
-            renderPlayers();
+            updateSubNowButton(); updateMasterTimerDisplay();
+            updateSubTimerDisplay(); renderProfileSelect(); renderPlayers();
         };
 
-        // ── Profile bar events ───────────────────────────────────
+        // ── Profile bar events ────────────────────────────────────
         profileSelect.addEventListener('change', () => switchToProfile(profileSelect.value));
 
         profileNewBtn.addEventListener('click', () => {
-            profileModalTitle.textContent = 'New Team Profile';
-            profileModalInput.value = '';
+            profileModalTitle.textContent  = 'New Team Profile';
+            profileModalInput.value        = '';
+            profileModalConfirm._mode      = 'new';
             profileModal.classList.add('open');
             setTimeout(() => profileModalInput.focus(), 50);
-            profileModalConfirm._mode = 'new';
         });
 
         profileRenameBtn.addEventListener('click', () => {
-            const profiles = loadAllProfiles();
-            const profile  = profiles.find(p => p.id === getActiveId());
-            if (!profile) return;
-            profileModalTitle.textContent = 'Rename Profile';
-            profileModalInput.value = profile.name;
+            const p = loadAllProfiles().find(p => p.id === getActiveId());
+            if (!p) return;
+            profileModalTitle.textContent  = 'Rename Profile';
+            profileModalInput.value        = p.name;
+            profileModalConfirm._mode      = 'rename';
             profileModal.classList.add('open');
             setTimeout(() => profileModalInput.focus(), 50);
-            profileModalConfirm._mode = 'rename';
         });
 
         profileDeleteBtn.addEventListener('click', () => {
             const profiles = loadAllProfiles();
             if (profiles.length <= 1) return;
-            const profile = profiles.find(p => p.id === getActiveId());
-            if (!confirm(`Delete profile "${profile?.name}"? This cannot be undone.`)) return;
-            const remaining = profiles.filter(p => p.id !== getActiveId());
-            saveAllProfiles(remaining);
-            switchToProfile(remaining[0].id);
+            const p = profiles.find(p => p.id === getActiveId());
+            if (!confirm(`Delete profile "${p?.name}"? This cannot be undone.`)) return;
+            const rest = profiles.filter(p => p.id !== getActiveId());
+            saveAllProfiles(rest);
+            switchToProfile(rest[0].id);
         });
 
         profileModalConfirm.addEventListener('click', () => {
             const name = profileModalInput.value.trim();
             if (!name) { alert('Please enter a team name.'); return; }
             const profiles = loadAllProfiles();
-
             if (profileModalConfirm._mode === 'new') {
-                // Save current state first, then create and switch.
                 if (timerState === 'playing') pauseTimers();
                 autoSave();
-
-                const newProfile = makeProfile(name);
-                profiles.push(newProfile);
+                const np = makeProfile(name);
+                profiles.push(np);
                 saveAllProfiles(profiles);
-                setActiveId(newProfile.id);
-                applyData(newProfile.data);
-                pendingSubs = [];
-                timerState  = 'paused';
-                playStartWallTime = null;
+                setActiveId(np.id);
+                applyData(np.data);
+                pendingSubs = []; timerState = 'paused'; playStartWallTime = null;
                 playPauseResumeBtn.textContent = 'Play';
                 resetSubTimer();
             } else {
-                // Rename
                 const idx = profiles.findIndex(p => p.id === getActiveId());
                 if (idx !== -1) {
                     profiles[idx].name         = name;
@@ -844,67 +847,59 @@
                     saveAllProfiles(profiles);
                 }
             }
-
             profileModal.classList.remove('open');
-            updateMasterTimerDisplay();
-            updateSubTimerDisplay();
-            renderProfileSelect();
-            renderPlayers();
+            updateMasterTimerDisplay(); updateSubTimerDisplay();
+            renderProfileSelect(); renderPlayers();
         });
 
         profileModalCancel.addEventListener('click', () => profileModal.classList.remove('open'));
         profileModal.addEventListener('click', (e) => { if (e.target === profileModal) profileModal.classList.remove('open'); });
         profileModalInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') profileModalConfirm.click(); });
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  HELPERS
-        // ════════════════════════════════════════════════════════
-        const formatTime = (seconds) => {
-            const s    = Math.max(0, Math.round(seconds));
-            const mins = Math.floor(s / 60);
-            const secs = s % 60;
-            return `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        // ════════════════════════════════════════════
+        const formatTime = (s) => {
+            s = Math.max(0, Math.round(s));
+            return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
         };
 
         const elapsedSincePlay = () =>
             playStartWallTime === null ? 0 : (Date.now() - playStartWallTime) / 1000;
 
-        const getDisplayTime = (player) => {
-            if (player.inGame && timerState === 'playing' && player.gameStartWallTime !== null)
-                return player.time + (Date.now() - player.gameStartWallTime) / 1000;
-            return player.time;
-        };
+        const getDisplayTime = (p) =>
+            p.inGame && timerState === 'playing' && p.gameStartWallTime !== null
+                ? p.time + (Date.now() - p.gameStartWallTime) / 1000
+                : p.time;
 
-        const isPlayerQueued = (id) => pendingSubs.some(s => s.outId === id || s.inId === id);
-        const onFieldCount   = () => players.filter(p => p.inGame).length;
-        const maxOnField     = () => Math.max(1, parseInt(maxOnFieldInput.value) || 1);
-        const fieldIsUnderMax = () => onFieldCount() < maxOnField();
+        const isPlayerQueued  = (id) => pendingSubs.some(s => s.outId === id || s.inId === id);
+        const onFieldCount    = ()   => players.filter(p => p.inGame).length;
+        const maxOnField      = ()   => Math.max(1, parseInt(maxOnFieldInput.value) || 1);
+        const fieldIsUnderMax = ()   => onFieldCount() < maxOnField();
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  FIELD COUNT BADGE
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         const updateFieldCountBadge = () => {
             const cur = onFieldCount(), max = maxOnField();
-            fieldCountBadge.textContent = `${cur} / ${max} on field`;
+            fieldCountBadge.textContent = `${cur} / ${max}`;
             fieldCountBadge.className   = cur >= max ? 'at-max' : 'under-max';
         };
 
         maxOnFieldInput.addEventListener('input', () => {
-            updateFieldCountBadge();
-            renderPlayers();
-            autoSave();
+            updateFieldCountBadge(); renderPlayers(); autoSave();
         });
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  SUB NOW BUTTON
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         const updateSubNowButton = () => {
             subNowBtn.style.display = pendingSubs.length > 0 ? 'inline-block' : 'none';
         };
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  SUB TIMER
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         const subTimerDurationSecs = () =>
             Math.max(1, parseInt(subTimerDurationInput.value) || 1) * 60;
 
@@ -942,36 +937,29 @@
             if (!subTimerEnabledInput.checked) return;
             subTimerActive = true;
             if (timerState === 'playing') {
-                subTimerStartWallTime   = Date.now();
-                subTimerPausedRemaining = null;
+                subTimerStartWallTime = Date.now(); subTimerPausedRemaining = null;
             } else {
-                subTimerStartWallTime   = null;
-                subTimerPausedRemaining = subTimerDurationSecs();
+                subTimerStartWallTime = null; subTimerPausedRemaining = subTimerDurationSecs();
             }
             updateSubTimerDisplay();
         };
 
         subTimerEnabledInput.addEventListener('change', () => {
             if (!subTimerEnabledInput.checked) resetSubTimer();
-            updateSubTimerDisplay();
-            autoSave();
+            updateSubTimerDisplay(); autoSave();
         });
-
         subTimerDurationInput.addEventListener('input', () => { updateSubTimerDisplay(); autoSave(); });
 
-        // ════════════════════════════════════════════════════════
-        //  MASTER TIMER DISPLAY
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
+        //  MASTER TIMER
+        // ════════════════════════════════════════════
         const updateMasterTimerDisplay = () => {
-            const display = timerState === 'playing'
+            const d = timerState === 'playing'
                 ? masterTimeAtPlayStart - elapsedSincePlay()
                 : masterTimeRemaining;
-            masterTimerEl.textContent = formatTime(display);
+            masterTimerEl.textContent = formatTime(d);
         };
 
-        // ════════════════════════════════════════════════════════
-        //  TIMER TICK
-        // ════════════════════════════════════════════════════════
         const commitPlayerTimes = () => {
             players.forEach(p => {
                 if (p.inGame && p.gameStartWallTime !== null) {
@@ -982,41 +970,30 @@
         };
 
         const tick = () => {
-            const remaining = masterTimeAtPlayStart - elapsedSincePlay();
-            if (remaining <= 0) {
-                masterTimeRemaining = 0;
-                commitPlayerTimes();
-                clearInterval(timerInterval);
-                timerState = 'paused';
+            const rem = masterTimeAtPlayStart - elapsedSincePlay();
+            if (rem <= 0) {
+                masterTimeRemaining = 0; commitPlayerTimes();
+                clearInterval(timerInterval); timerState = 'paused';
                 playPauseResumeBtn.textContent = 'Play';
-                updateMasterTimerDisplay();
-                updateSubTimerDisplay();
-                renderPlayers();
+                updateMasterTimerDisplay(); updateSubTimerDisplay(); renderPlayers();
                 return;
             }
             tickSubTimer();
-            updateMasterTimerDisplay();
-            updateSubTimerDisplay();
-            renderPlayers();
+            updateMasterTimerDisplay(); updateSubTimerDisplay(); renderPlayers();
         };
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  PLAY / PAUSE / RESET
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         const startTimers = () => {
             if (timerState === 'playing') return;
-            timerState = 'playing';
-            playPauseResumeBtn.textContent = 'Pause';
-            playStartWallTime     = Date.now();
-            masterTimeAtPlayStart = masterTimeRemaining;
+            timerState = 'playing'; playPauseResumeBtn.textContent = 'Pause';
+            playStartWallTime = Date.now(); masterTimeAtPlayStart = masterTimeRemaining;
             players.forEach(p => { if (p.inGame) p.gameStartWallTime = Date.now(); });
-
             if (subTimerActive && subTimerPausedRemaining !== null) {
-                const consumed = subTimerDurationSecs() - subTimerPausedRemaining;
-                subTimerStartWallTime   = Date.now() - consumed * 1000;
+                subTimerStartWallTime   = Date.now() - (subTimerDurationSecs() - subTimerPausedRemaining) * 1000;
                 subTimerPausedRemaining = null;
             }
-
             timerInterval = setInterval(tick, 500);
         };
 
@@ -1025,38 +1002,28 @@
             clearInterval(timerInterval);
             masterTimeRemaining = Math.max(0, masterTimeAtPlayStart - elapsedSincePlay());
             commitPlayerTimes();
-
             if (subTimerActive && subTimerStartWallTime !== null) {
                 subTimerPausedRemaining = Math.max(0, subTimerRemaining());
                 subTimerStartWallTime   = null;
             }
-
-            timerState = 'paused';
-            playStartWallTime = null;
+            timerState = 'paused'; playStartWallTime = null;
             playPauseResumeBtn.textContent = 'Resume';
-            updateMasterTimerDisplay();
-            updateSubTimerDisplay();
-            renderPlayers();
+            updateMasterTimerDisplay(); updateSubTimerDisplay(); renderPlayers();
         };
 
-        playPauseResumeBtn.addEventListener('click', () => {
-            timerState === 'paused' ? startTimers() : pauseTimers();
-        });
+        playPauseResumeBtn.addEventListener('click', () =>
+            timerState === 'paused' ? startTimers() : pauseTimers());
 
         resetBtn.addEventListener('click', () => {
             if (!confirm('Reset all timers to zero?')) return;
             clearInterval(timerInterval);
-            timerState = 'paused';
-            playStartWallTime = null;
+            timerState = 'paused'; playStartWallTime = null;
             masterTimeRemaining = parseInt(matchDurationInput.value) * 60;
             playPauseResumeBtn.textContent = 'Play';
             updateMasterTimerDisplay();
             players.forEach(p => { p.time = 0; p.gameStartWallTime = null; });
-            pendingSubs = [];
-            updateSubNowButton();
-            resetSubTimer();
-            renderPlayers();
-            autoSave();
+            pendingSubs = []; updateSubNowButton();
+            resetSubTimer(); renderPlayers(); autoSave();
         });
 
         matchDurationInput.addEventListener('change', () => {
@@ -1067,44 +1034,31 @@
             autoSave();
         });
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  SUB QUEUE MODAL
-        // ════════════════════════════════════════════════════════
-        const openSubModal = (triggerId, triggerRole) => {
-            const triggerPlayer = players.find(p => p.id === triggerId);
-            if (!triggerPlayer) return;
+        // ════════════════════════════════════════════
+        const openSubModal = (triggerId, role) => {
+            const trigger = players.find(p => p.id === triggerId);
+            if (!trigger) return;
             const candidates = players.filter(p =>
-                triggerRole === 'out'
-                    ? !p.inGame && !isPlayerQueued(p.id)
-                    :  p.inGame && !isPlayerQueued(p.id)
-            );
-            if (candidates.length === 0) {
-                alert(triggerRole === 'out'
-                    ? 'No available bench players to sub in.'
-                    : 'No available on-field players to sub out.');
-                return;
+                role === 'out' ? !p.inGame && !isPlayerQueued(p.id)
+                               :  p.inGame && !isPlayerQueued(p.id));
+            if (!candidates.length) {
+                alert(role === 'out' ? 'No available bench players.' : 'No available on-field players.'); return;
             }
-            modalContext = { triggerId, triggerRole };
-            modalTitle.textContent       = triggerRole === 'out' ? 'Sub Out' : 'Sub In';
-            modalPlayerLabel.textContent = triggerRole === 'out'
-                ? `Subbing out: ${triggerPlayer.name}`
-                : `Subbing in: ${triggerPlayer.name}`;
+            modalContext = { triggerId, role };
+            modalTitle.textContent       = role === 'out' ? 'Sub Out' : 'Sub In';
+            modalPlayerLabel.textContent = role === 'out' ? `Subbing out: ${trigger.name}` : `Subbing in: ${trigger.name}`;
             modalSelect.innerHTML = '<option value="">— select a player —</option>';
             candidates.forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.textContent = `${p.name}  (${formatTime(getDisplayTime(p))})`;
-                modalSelect.appendChild(opt);
+                const o = document.createElement('option');
+                o.value = p.id; o.textContent = `${p.name}  (${formatTime(getDisplayTime(p))})`;
+                modalSelect.appendChild(o);
             });
             subModal.classList.add('open');
         };
 
-        const closeSubModal = () => {
-            subModal.classList.remove('open');
-            modalContext = null;
-            modalSelect.value = '';
-        };
-
+        const closeSubModal = () => { subModal.classList.remove('open'); modalContext = null; modalSelect.value = ''; };
         modalCancelBtn.addEventListener('click', closeSubModal);
         subModal.addEventListener('click', (e) => { if (e.target === subModal) closeSubModal(); });
 
@@ -1112,123 +1066,100 @@
             if (modalSelect.value === '') { alert('Please select a player.'); return; }
             const selectedId = parseInt(modalSelect.value);
             if (!modalContext) return;
-            const { triggerId, triggerRole } = modalContext;
-            const outId = triggerRole === 'out' ? triggerId : selectedId;
-            const inId  = triggerRole === 'out' ? selectedId : triggerId;
+            const { triggerId, role } = modalContext;
+            const outId = role === 'out' ? triggerId : selectedId;
+            const inId  = role === 'out' ? selectedId : triggerId;
             if (isPlayerQueued(outId) || isPlayerQueued(inId)) {
-                alert('One of these players is already in a queued substitution.');
-                closeSubModal(); return;
+                alert('One of these players is already queued.'); closeSubModal(); return;
             }
-            pendingSubs.push({ outId, inId });
-            updateSubNowButton();
-            closeSubModal();
-            renderPlayers();
+            pendingSubs.push({ outId, inId }); updateSubNowButton(); closeSubModal(); renderPlayers();
         });
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  EXECUTE QUEUED SUBS
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         const executeQueuedSubs = () => {
             pendingSubs.forEach(({ outId, inId }) => {
-                const outPlayer = players.find(p => p.id === outId);
-                const inPlayer  = players.find(p => p.id === inId);
-                if (!outPlayer || !inPlayer) return;
-                inPlayer.position = { ...outPlayer.position };
-                if (timerState === 'playing' && outPlayer.gameStartWallTime !== null) {
-                    outPlayer.time += (Date.now() - outPlayer.gameStartWallTime) / 1000;
-                    outPlayer.gameStartWallTime = null;
+                const out = players.find(p => p.id === outId);
+                const inn = players.find(p => p.id === inId);
+                if (!out || !inn) return;
+                inn.position = { ...out.position };
+                if (timerState === 'playing' && out.gameStartWallTime !== null) {
+                    out.time += (Date.now() - out.gameStartWallTime) / 1000;
+                    out.gameStartWallTime = null;
                 }
-                outPlayer.inGame = false;
-                inPlayer.inGame  = true;
-                if (timerState === 'playing') inPlayer.gameStartWallTime = Date.now();
+                out.inGame = false; inn.inGame = true;
+                if (timerState === 'playing') inn.gameStartWallTime = Date.now();
             });
-            pendingSubs = [];
-            updateSubNowButton();
-            startSubTimerCycle();
-            renderPlayers();
-            autoSave();
+            pendingSubs = []; updateSubNowButton(); startSubTimerCycle(); renderPlayers(); autoSave();
         };
-
         subNowBtn.addEventListener('click', executeQueuedSubs);
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  QUICK-ADD TO FIELD
-        // ════════════════════════════════════════════════════════
-        const nextFieldPosition = () => {
-            const count = onFieldCount();
-            return { x: `${20 + (count % 4) * 115}px`, y: `${20 + Math.floor(count / 4) * 75}px` };
+        // ════════════════════════════════════════════
+        const nextFieldPos = () => {
+            const c = onFieldCount();
+            return { x: `${20 + (c % 4) * 115}px`, y: `${20 + Math.floor(c / 4) * 75}px` };
         };
-
         const quickAddToField = (id) => {
-            const player = players.find(p => p.id === id);
-            if (!player || player.inGame) return;
-            player.position = nextFieldPosition();
-            player.inGame   = true;
-            if (timerState === 'playing') player.gameStartWallTime = Date.now();
-            renderPlayers();
-            autoSave();
+            const p = players.find(p => p.id === id);
+            if (!p || p.inGame) return;
+            p.position = nextFieldPos(); p.inGame = true;
+            if (timerState === 'playing') p.gameStartWallTime = Date.now();
+            renderPlayers(); autoSave();
         };
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  DRAG AND DROP
-        // ════════════════════════════════════════════════════════
-        let activeOval = null, initialX, initialY;
+        // ════════════════════════════════════════════
+        let activeOval = null, initX, initY;
 
-        field.addEventListener('mousedown',  (e) => {
-            activeOval = e.target.closest('.player-oval');
+        const startDrag = (clientX, clientY, target) => {
+            activeOval = target.closest('.player-oval');
             if (!activeOval) return;
-            initialX = e.clientX - activeOval.offsetLeft;
-            initialY = e.clientY - activeOval.offsetTop;
-        });
-        field.addEventListener('touchstart', (e) => {
-            activeOval = e.target.closest('.player-oval');
-            if (!activeOval) return;
-            initialX = e.touches[0].clientX - activeOval.offsetLeft;
-            initialY = e.touches[0].clientY - activeOval.offsetTop;
-        }, { passive: false });
-
+            initX = clientX - activeOval.offsetLeft;
+            initY = clientY - activeOval.offsetTop;
+        };
         const doDrag = (clientX, clientY) => {
             if (!activeOval) return;
-            const fr = field.getBoundingClientRect();
-            const or = activeOval.getBoundingClientRect();
-            activeOval.style.left = `${Math.max(0, Math.min(clientX - initialX, fr.width  - or.width))}px`;
-            activeOval.style.top  = `${Math.max(0, Math.min(clientY - initialY, fr.height - or.height))}px`;
+            const fr = field.getBoundingClientRect(), or = activeOval.getBoundingClientRect();
+            activeOval.style.left = `${Math.max(0, Math.min(clientX - initX, fr.width  - or.width))}px`;
+            activeOval.style.top  = `${Math.max(0, Math.min(clientY - initY, fr.height - or.height))}px`;
         };
-
-        document.addEventListener('mousemove', (e) => { if (activeOval) { e.preventDefault(); doDrag(e.clientX, e.clientY); } });
-        document.addEventListener('touchmove', (e) => { if (activeOval) { e.preventDefault(); doDrag(e.touches[0].clientX, e.touches[0].clientY); } }, { passive: false });
-
         const endDrag = () => {
             if (!activeOval) return;
-            const player = players.find(p => p.id == activeOval.dataset.id);
-            if (player) { player.position = { x: activeOval.style.left, y: activeOval.style.top }; autoSave(); }
+            const p = players.find(p => p.id == activeOval.dataset.id);
+            if (p) { p.position = { x: activeOval.style.left, y: activeOval.style.top }; autoSave(); }
             activeOval = null;
         };
+
+        field.addEventListener('mousedown',  (e) => startDrag(e.clientX, e.clientY, e.target));
+        field.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX, e.touches[0].clientY, e.target), { passive: false });
+        document.addEventListener('mousemove', (e) => { if (activeOval) { e.preventDefault(); doDrag(e.clientX, e.clientY); } });
+        document.addEventListener('touchmove', (e) => { if (activeOval) { e.preventDefault(); doDrag(e.touches[0].clientX, e.touches[0].clientY); } }, { passive: false });
         document.addEventListener('mouseup',  endDrag);
         document.addEventListener('touchend', endDrag);
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  PLAYER MANAGEMENT
-        // ════════════════════════════════════════════════════════
-        const addPlayer = (name, time = 0, inGame = false, id = Date.now(), position = { x: '20px', y: '20px' }) => {
+        // ════════════════════════════════════════════
+        const addPlayer = (name, time = 0, inGame = false, id = Date.now(), pos = { x: '20px', y: '20px' }) => {
             if (!name.trim()) return;
-            players.push({ id, name, time, inGame, position, gameStartWallTime: null });
+            players.push({ id, name, time, inGame, position: pos, gameStartWallTime: null });
             newPlayerNameInput.value = '';
-            renderPlayers();
-            autoSave();
+            renderPlayers(); autoSave();
         };
 
         const removePlayer = (id) => {
-            const player = players.find(p => p.id === id);
-            if (player && player.inGame && timerState === 'playing' && player.gameStartWallTime !== null) {
-                player.time += (Date.now() - player.gameStartWallTime) / 1000;
-                player.gameStartWallTime = null;
+            const p = players.find(p => p.id === id);
+            if (p && p.inGame && timerState === 'playing' && p.gameStartWallTime !== null) {
+                p.time += (Date.now() - p.gameStartWallTime) / 1000; p.gameStartWallTime = null;
             }
             pendingSubs = pendingSubs.filter(s => s.outId !== id && s.inId !== id);
             updateSubNowButton();
             players = players.filter(p => p.id !== id);
-            renderPlayers();
-            autoSave();
+            renderPlayers(); autoSave();
         };
 
         addPlayerBtn.addEventListener('click', () => addPlayer(newPlayerNameInput.value));
@@ -1246,202 +1177,118 @@
             if (e.target.classList.contains('remove-player-button')) removePlayer(id);
         });
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  RENDERING
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         const renderPlayers = () => {
             const sorted   = [...players].sort((a, b) => getDisplayTime(b) - getDisplayTime(a));
             const underMax = fieldIsUnderMax();
-
             playerList.innerHTML = '';
             field.querySelectorAll('.player-oval').forEach(o => o.remove());
             updateFieldCountBadge();
 
-            sorted.forEach(player => {
+            sorted.forEach(p => {
                 const li = document.createElement('li');
-                li.className = 'player-item';
-                li.dataset.id = player.id;
-
-                const queued = isPlayerQueued(player.id);
-                let subBtn;
-                if (queued) {
-                    subBtn = `<button class="queued-button" disabled>Queued</button>`;
-                } else if (underMax) {
-                    const extra = player.inGame ? ' already-on-field' : '';
-                    subBtn = `<button class="add-to-field-button${extra}" ${player.inGame ? 'disabled' : ''}>+</button>`;
-                } else if (player.inGame) {
-                    subBtn = `<button class="sub-toggle-button is-subbed-in">Sub Out</button>`;
-                } else {
-                    subBtn = `<button class="sub-toggle-button is-subbed-out">Sub In</button>`;
-                }
+                li.className = 'player-item'; li.dataset.id = p.id;
+                const q = isPlayerQueued(p.id);
+                let btn;
+                if (q)           btn = `<button class="queued-button" disabled>Queued</button>`;
+                else if (underMax) {
+                    const ex = p.inGame ? ' already-on-field' : '';
+                    btn = `<button class="add-to-field-button${ex}" ${p.inGame ? 'disabled' : ''}>+</button>`;
+                } else if (p.inGame) btn = `<button class="sub-toggle-button is-subbed-in">Sub Out</button>`;
+                else                  btn = `<button class="sub-toggle-button is-subbed-out">Sub In</button>`;
 
                 li.innerHTML = `
                     <div class="player-info">
-                        <span class="player-name">${player.name}</span>
-                        <span class="player-timer">${formatTime(getDisplayTime(player))}</span>
+                        <span class="player-name">${p.name}</span>
+                        <span class="player-timer">${formatTime(getDisplayTime(p))}</span>
                     </div>
                     <div class="player-controls">
-                        ${subBtn}
+                        ${btn}
                         <button class="remove-player-button">❌</button>
                     </div>`;
                 playerList.appendChild(li);
 
-                if (player.inGame) {
+                if (p.inGame) {
                     const oval = document.createElement('div');
-                    oval.className  = 'player-oval';
-                    oval.dataset.id = player.id;
-                    oval.style.left = player.position.x;
-                    oval.style.top  = player.position.y;
-                    oval.innerHTML  = `<span class="player-name-on-map">${player.name}</span>`;
-                    if (queued) oval.style.boxShadow = '0 0 12px 4px var(--queue-color)';
+                    oval.className = 'player-oval'; oval.dataset.id = p.id;
+                    oval.style.left = p.position.x; oval.style.top = p.position.y;
+                    oval.innerHTML  = `<span class="player-name-on-map">${p.name}</span>`;
+                    if (q) oval.style.boxShadow = '0 0 12px 4px var(--queue-color)';
                     field.appendChild(oval);
                 }
             });
         };
 
-        // ════════════════════════════════════════════════════════
-        //  EXPORT / IMPORT  (version 2 format, all profiles)
-        // ════════════════════════════════════════════════════════
-        /*
-         * File format v2:
-         * {
-         *   "version": 2,
-         *   "exportedAt": "<ISO timestamp>",
-         *   "activeProfileId": "<id>",
-         *   "profiles": [
-         *     {
-         *       "id": "<string>",
-         *       "name": "<string>",
-         *       "created": "<ISO>",
-         *       "lastModified": "<ISO>",
-         *       "data": {
-         *         "players": [...],
-         *         "masterTimeRemaining": <number>,
-         *         "matchDuration": <number>,
-         *         "maxOnField": <number>,
-         *         "subTimerEnabled": <bool>,
-         *         "subTimerMinutes": <number>,
-         *         "subTimerActive": <bool>,
-         *         "subTimerRemaining": <number|null>
-         *       }
-         *     }
-         *   ]
-         * }
-         */
-
+        // ════════════════════════════════════════════
+        //  EXPORT / IMPORT  (v2)
+        // ════════════════════════════════════════════
         exportDataBtn.addEventListener('click', () => {
-            // Flush current state into the active profile before exporting.
-            const profiles   = loadAllProfiles();
-            const activeId   = getActiveId();
-            const idx        = profiles.findIndex(p => p.id === activeId);
-            if (idx !== -1) {
-                profiles[idx].data         = snapshotData();
-                profiles[idx].lastModified = new Date().toISOString();
-                saveAllProfiles(profiles);
-            }
-
-            const exportObj = {
-                version:         2,
-                exportedAt:      new Date().toISOString(),
-                activeProfileId: activeId,
-                profiles
-            };
-
+            const profiles = loadAllProfiles(), activeId = getActiveId();
+            const idx = profiles.findIndex(p => p.id === activeId);
+            if (idx !== -1) { profiles[idx].data = snapshotData(); profiles[idx].lastModified = new Date().toISOString(); saveAllProfiles(profiles); }
             const a = document.createElement('a');
-            a.href     = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportObj, null, 2));
+            a.href     = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), activeProfileId: activeId, profiles }, null, 2));
             a.download = 'soccer_tracker_profiles.json';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
+            document.body.appendChild(a); a.click(); a.remove();
         });
 
         importDataLabel.addEventListener('click', () => importFileInput.click());
 
-        importFileInput.addEventListener('change', (event) => {
+        importFileInput.addEventListener('change', (ev) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const obj = JSON.parse(e.target.result);
-                    if (obj.version !== 2 || !Array.isArray(obj.profiles) || obj.profiles.length === 0) {
-                        alert('Invalid or unsupported file format (expected version 2).');
-                        return;
+                    if (obj.version !== 2 || !Array.isArray(obj.profiles) || !obj.profiles.length) {
+                        alert('Invalid or unsupported file (expected version 2).'); return;
                     }
-                    if (!confirm(`This will replace all ${loadAllProfiles().length} current profile(s) with ${obj.profiles.length} profile(s) from the file. Continue?`)) return;
-
-                    // Stop any running timer before blowing away state.
+                    if (!confirm(`Replace all ${loadAllProfiles().length} profile(s) with ${obj.profiles.length} from file?`)) return;
                     if (timerState === 'playing') pauseTimers();
-
-                    // Clean up imported profiles (clear any running wall-clock refs).
                     const cleaned = obj.profiles.map(p => ({
-                        ...p,
-                        data: {
-                            ...p.data,
-                            players: (p.data.players || []).map(pl => ({ ...pl, gameStartWallTime: null })),
-                            // Treat all imported timers as paused.
-                            subTimerActive:    p.data.subTimerActive    ?? false,
-                            subTimerRemaining: p.data.subTimerRemaining ?? null
-                        }
+                        ...p, data: { ...p.data,
+                            players: (p.data.players||[]).map(pl => ({ ...pl, gameStartWallTime: null })),
+                            subTimerActive: p.data.subTimerActive ?? false,
+                            subTimerRemaining: p.data.subTimerRemaining ?? null }
                     }));
-
                     saveAllProfiles(cleaned);
-
-                    // Activate the profile that was active when exported, or the first one.
-                    const targetId = cleaned.find(p => p.id === obj.activeProfileId)
-                        ? obj.activeProfileId
-                        : cleaned[0].id;
-                    setActiveId(targetId);
-
-                    const target = cleaned.find(p => p.id === targetId);
-                    applyData(target.data);
-                    pendingSubs = [];
-                    timerState  = 'paused';
-                    playStartWallTime = null;
+                    const tid = cleaned.find(p => p.id === obj.activeProfileId) ? obj.activeProfileId : cleaned[0].id;
+                    setActiveId(tid);
+                    applyData(cleaned.find(p => p.id === tid).data);
+                    pendingSubs = []; timerState = 'paused'; playStartWallTime = null;
                     playPauseResumeBtn.textContent = 'Play';
-
-                    updateSubNowButton();
-                    updateMasterTimerDisplay();
-                    updateSubTimerDisplay();
-                    renderProfileSelect();
-                    renderPlayers();
-                    alert(`Imported ${cleaned.length} profile(s) successfully.`);
-                } catch {
-                    alert('Error reading file — make sure it is a valid JSON file.');
-                }
+                    updateSubNowButton(); updateMasterTimerDisplay(); updateSubTimerDisplay();
+                    renderProfileSelect(); renderPlayers();
+                    alert(`Imported ${cleaned.length} profile(s).`);
+                } catch { alert('Error reading file.'); }
             };
-            reader.readAsText(event.target.files[0]);
-            event.target.value = ''; // reset so the same file can be re-imported
+            reader.readAsText(ev.target.files[0]);
+            ev.target.value = '';
         });
 
-        // ════════════════════════════════════════════════════════
-        //  PAGE VISIBILITY (phone screen wake)
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
+        //  PAGE VISIBILITY
+        // ════════════════════════════════════════════
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && timerState === 'playing') tick();
         });
 
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         //  INITIAL LOAD
-        // ════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════
         (() => {
             let profiles = loadAllProfiles();
-
-            // First-ever launch: seed a default profile.
-            if (profiles.length === 0) {
-                const def = makeProfile('My Team');
-                profiles   = [def];
-                saveAllProfiles(profiles);
-                setActiveId(def.id);
+            if (!profiles.length) {
+                const d = makeProfile('My Team');
+                profiles = [d]; saveAllProfiles(profiles); setActiveId(d.id);
             }
-
-            // Make sure the active id points to a real profile.
             let activeId = getActiveId();
-            if (!profiles.find(p => p.id === activeId)) {
-                activeId = profiles[0].id;
-                setActiveId(activeId);
-            }
+            if (!profiles.find(p => p.id === activeId)) { activeId = profiles[0].id; setActiveId(activeId); }
+            applyData(profiles.find(p => p.id === activeId).data);
 
-            const active = profiles.find(p => p.id === activeId);
-            applyData(active.data);
+            // Restore setup panel open/close state (default closed)
+            setSetupOpen(isSetupOpen());
 
             renderProfileSelect();
             updateMasterTimerDisplay();
