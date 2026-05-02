@@ -1100,7 +1100,8 @@
         // ════════════════════════════════════════════
         const nextFieldPos = () => {
             const c = onFieldCount();
-            return { x: `${20 + (c % 4) * 115}px`, y: `${20 + Math.floor(c / 4) * 75}px` };
+            // Stagger in a 4-column grid; store as percentages so they scale with field size.
+            return { xPct: 5 + (c % 4) * 24, yPct: 8 + Math.floor(c / 4) * 30 };
         };
         const quickAddToField = (id) => {
             const p = players.find(p => p.id === id);
@@ -1130,7 +1131,15 @@
         const endDrag = () => {
             if (!activeOval) return;
             const p = players.find(p => p.id == activeOval.dataset.id);
-            if (p) { p.position = { x: activeOval.style.left, y: activeOval.style.top }; autoSave(); }
+            if (p) {
+                const fr = field.getBoundingClientRect();
+                const or = activeOval.getBoundingClientRect();
+                p.position = {
+                    xPct: (parseFloat(activeOval.style.left) / (fr.width  - or.width))  * 100,
+                    yPct: (parseFloat(activeOval.style.top)  / (fr.height - or.height)) * 100
+                };
+                autoSave();
+            }
             activeOval = null;
         };
 
@@ -1144,7 +1153,7 @@
         // ════════════════════════════════════════════
         //  PLAYER MANAGEMENT
         // ════════════════════════════════════════════
-        const addPlayer = (name, time = 0, inGame = false, id = Date.now(), pos = { x: '20px', y: '20px' }) => {
+        const addPlayer = (name, time = 0, inGame = false, id = Date.now(), pos = { xPct: 5, yPct: 8 }) => {
             if (!name.trim()) return;
             players.push({ id, name, time, inGame, position: pos, gameStartWallTime: null });
             newPlayerNameInput.value = '';
@@ -1213,7 +1222,26 @@
                 if (p.inGame) {
                     const oval = document.createElement('div');
                     oval.className = 'player-oval'; oval.dataset.id = p.id;
-                    oval.style.left = p.position.x; oval.style.top = p.position.y;
+
+                    // Convert stored percentage coords to pixels at current field size.
+                    // Falls back gracefully if old pixel-string saves are loaded.
+                    const fr = field.getBoundingClientRect();
+                    const ovalW = 100, ovalH = 60; // must match CSS .player-oval dimensions
+                    if (p.position.xPct !== undefined) {
+                        oval.style.left = `${(p.position.xPct / 100) * (fr.width  - ovalW)}px`;
+                        oval.style.top  = `${(p.position.yPct / 100) * (fr.height - ovalH)}px`;
+                    } else {
+                        // Legacy: migrate pixel strings to percentages on first render
+                        const px = parseFloat(p.position.x) || 20;
+                        const py = parseFloat(p.position.y) || 20;
+                        p.position = {
+                            xPct: (px / Math.max(fr.width  - ovalW, 1)) * 100,
+                            yPct: (py / Math.max(fr.height - ovalH, 1)) * 100
+                        };
+                        oval.style.left = `${(p.position.xPct / 100) * (fr.width  - ovalW)}px`;
+                        oval.style.top  = `${(p.position.yPct / 100) * (fr.height - ovalH)}px`;
+                    }
+
                     oval.innerHTML  = `<span class="player-name-on-map">${p.name}</span>`;
                     if (q) oval.style.boxShadow = '0 0 12px 4px var(--queue-color)';
                     field.appendChild(oval);
@@ -1273,6 +1301,9 @@
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && timerState === 'playing') tick();
         });
+
+        // Re-render player ovals whenever the field resizes (rotation, window resize).
+        window.addEventListener('resize', renderPlayers);
 
         // ════════════════════════════════════════════
         //  INITIAL LOAD
