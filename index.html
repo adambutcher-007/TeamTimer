@@ -16,6 +16,12 @@
             --button-hover-color: #0056b3;
             --sub-out-color: #DC3545;
             --sub-out-hover-color: #c82333;
+            --reset-color: #6c757d;
+            --reset-hover-color: #545b62;
+            --queue-color: #FF8C00;
+            --queue-hover-color: #e07b00;
+            --add-color: #7B2FBE;
+            --add-hover-color: #5e1f96;
         }
 
         body {
@@ -58,63 +64,12 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        .goal-line {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background-color: var(--line-white);
-        }
-
-        .half-field-line {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background-color: var(--line-white);
-        }
-
-        .sideline-top {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background-color: var(--line-white);
-        }
-
-        .sideline-bottom {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background-color: var(--line-white);
-        }
-
-        .goal-box {
-            position: absolute;
-            left: 0;
-            top: 25%;
-            width: 10%;
-            height: 50%;
-            border: 3px solid var(--line-white);
-            border-left: none;
-            box-sizing: border-box;
-        }
-
-        .penalty-box {
-            position: absolute;
-            left: 0;
-            top: 15%;
-            width: 25%;
-            height: 70%;
-            border: 3px solid var(--line-white);
-            border-left: none;
-            box-sizing: border-box;
-        }
+        .goal-line { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background-color: var(--line-white); }
+        .half-field-line { position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background-color: var(--line-white); }
+        .sideline-top { position: absolute; top: 0; left: 0; right: 0; height: 3px; background-color: var(--line-white); }
+        .sideline-bottom { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background-color: var(--line-white); }
+        .goal-box { position: absolute; left: 0; top: 25%; width: 10%; height: 50%; border: 3px solid var(--line-white); border-left: none; box-sizing: border-box; }
+        .penalty-box { position: absolute; left: 0; top: 15%; width: 25%; height: 70%; border: 3px solid var(--line-white); border-left: none; box-sizing: border-box; }
 
         .player-oval {
             position: absolute;
@@ -138,6 +93,7 @@
             color: var(--accent-color);
         }
 
+        /* ── Timers & Controls ── */
         .timers-container {
             display: flex;
             justify-content: space-around;
@@ -147,14 +103,8 @@
             gap: 20px;
         }
 
-        .master-timer-container {
-            text-align: center;
-        }
-
-        .master-timer-container label {
-            display: block;
-            margin-bottom: 5px;
-        }
+        .master-timer-container { text-align: center; }
+        .master-timer-container label { display: block; margin-bottom: 5px; }
 
         #master-timer {
             font-size: 2.5em;
@@ -165,10 +115,62 @@
             border-radius: 10px;
         }
 
+        /* ── Sub Timer (deliberately less prominent than master timer) ── */
+        #sub-timer-section {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .sub-timer-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        #sub-timer-enabled {
+            transform: scale(1.1);
+            cursor: pointer;
+        }
+
+        #sub-timer-duration {
+            width: 48px;
+            padding: 3px 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 0.95em;
+            text-align: center;
+        }
+
+        #sub-timer-display {
+            font-size: 1.25em;
+            font-weight: bold;
+            color: rgba(255,255,255,0.9);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+            min-width: 70px;
+            text-align: center;
+        }
+        #sub-timer-display.inactive { opacity: 0.45; }
+        #sub-timer-display.warning  { color: #FFB347; }
+        #sub-timer-display.expired  { color: #ff5b5b; animation: flash 0.5s 4; }
+        #sub-timer-display.hidden   { display: none; }
+
+        @keyframes flash {
+            50% { opacity: 0.3; }
+        }
+
         .controls {
             display: flex;
             gap: 10px;
             margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .control-button {
@@ -181,11 +183,26 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+        .control-button:hover { background-color: var(--button-hover-color); }
 
-        .control-button:hover {
-            background-color: var(--button-hover-color);
+        #reset-button { background-color: var(--reset-color); }
+        #reset-button:hover { background-color: var(--reset-hover-color); }
+
+        #sub-now-button {
+            background-color: var(--queue-color);
+            display: none;
+            font-weight: bold;
+            animation: pulse-orange 1.4s infinite;
+        }
+        #sub-now-button:hover { background-color: var(--queue-hover-color); animation: none; }
+
+        @keyframes pulse-orange {
+            0%   { box-shadow: 0 0 0 0 rgba(255,140,0,0.7); }
+            70%  { box-shadow: 0 0 0 8px rgba(255,140,0,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,140,0,0); }
         }
 
+        /* ── Player Management ── */
         .player-management {
             background-color: var(--light-green);
             padding: 20px;
@@ -197,11 +214,14 @@
         .add-player-form {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         #new-player-name {
             flex-grow: 1;
+            min-width: 120px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -216,12 +236,57 @@
             color: var(--text-color);
             cursor: pointer;
             transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        #add-player-button:hover { background-color: var(--dark-green); }
+
+        .field-size-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            font-size: 0.95em;
+            color: #444;
+            flex-wrap: wrap;
         }
 
-        #add-player-button:hover {
-            background-color: var(--dark-green);
+        .field-size-row label {
+            font-weight: bold;
+            white-space: nowrap;
         }
-        
+
+        #max-on-field {
+            width: 56px;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        /* live field count badge */
+        #field-count-badge {
+            font-size: 0.88em;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            padding: 3px 10px;
+            color: #555;
+            white-space: nowrap;
+        }
+        #field-count-badge.at-max {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+        #field-count-badge.under-max {
+            background: #e8d5f8;
+            border-color: var(--add-color);
+            color: var(--add-color);
+            font-weight: bold;
+        }
+
         #player-list-comment {
             font-style: italic;
             color: #555;
@@ -229,11 +294,7 @@
             text-align: center;
         }
 
-        #player-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+        #player-list { list-style: none; padding: 0; margin: 0; }
 
         .player-item {
             display: flex;
@@ -246,30 +307,14 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .player-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
+        .player-info { display: flex; flex-direction: column; align-items: flex-start; }
+        .player-name { font-weight: bold; font-size: 1.1em; }
+        .player-timer { font-size: 1.2em; color: var(--dark-green); }
+        .player-controls { display: flex; align-items: center; gap: 8px; }
 
-        .player-name {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .player-timer {
-            font-size: 1.2em;
-            color: var(--dark-green);
-        }
-        
-        .player-controls {
-            display: flex;
-            align-items: center;
-        }
-
+        /* Normal sub buttons */
         .sub-toggle-button {
             padding: 8px 12px;
-            margin-right: 10px;
             border: none;
             border-radius: 5px;
             color: white;
@@ -278,19 +323,43 @@
             width: 80px;
             font-weight: bold;
         }
+        .sub-toggle-button.is-subbed-out { background-color: var(--button-color); }
+        .sub-toggle-button.is-subbed-out:hover { background-color: var(--button-hover-color); }
+        .sub-toggle-button.is-subbed-in { background-color: var(--sub-out-color); }
+        .sub-toggle-button.is-subbed-in:hover { background-color: var(--sub-out-hover-color); }
 
-        .sub-toggle-button.is-subbed-out {
-            background-color: var(--button-color);
-        }
-        .sub-toggle-button.is-subbed-out:hover {
-            background-color: var(--button-hover-color);
+        /* Queued state */
+        .queued-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            background-color: var(--queue-color);
+            width: 80px;
+            font-weight: bold;
+            cursor: default;
+            opacity: 0.9;
         }
 
-        .sub-toggle-button.is-subbed-in {
-            background-color: var(--sub-out-color);
+        /* Quick-add "+" button (shown when field is under max) */
+        .add-to-field-button {
+            padding: 8px 0;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            background-color: var(--add-color);
+            width: 80px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            line-height: 1;
         }
-        .sub-toggle-button.is-subbed-in:hover {
-            background-color: var(--sub-out-hover-color);
+        .add-to-field-button:hover { background-color: var(--add-hover-color); }
+        /* Already on-field: still purple but visually muted — not actionable */
+        .add-to-field-button.already-on-field {
+            opacity: 0.35;
+            cursor: default;
         }
 
         .remove-player-button {
@@ -303,15 +372,10 @@
             line-height: 1;
             transition: opacity 0.3s;
         }
-        .remove-player-button:hover {
-            opacity: 0.7;
-        }
-        
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
+        .remove-player-button:hover { opacity: 0.7; }
 
+        /* ── Save Dropdown ── */
+        .dropdown { position: relative; display: inline-block; }
         .dropdown-button {
             background-color: var(--accent-color);
             color: var(--dark-green);
@@ -321,51 +385,112 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
         .dropdown-content {
             display: none;
             position: absolute;
             background-color: #f1f1f1;
             min-width: 160px;
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
+            z-index: 100;
             border-radius: 5px;
             right: 0;
         }
+        .dropdown-content a { color: black; padding: 12px 16px; text-decoration: none; display: block; cursor: pointer; }
+        .dropdown-content a:hover { background-color: #ddd; }
+        .dropdown:hover .dropdown-content { display: block; }
 
-        .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            cursor: pointer;
+        /* ── Sub Queue Modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
         }
+        .modal-overlay.open { display: flex; }
 
-        .dropdown-content a:hover {background-color: #ddd;}
+        .modal {
+            background-color: #fff;
+            color: #333;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 360px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .modal h2 { margin: 0; font-size: 1.2em; color: var(--dark-green); text-align: center; }
+        .modal-player-label {
+            font-weight: bold;
+            font-size: 1.05em;
+            text-align: center;
+            background: var(--light-green);
+            padding: 8px;
+            border-radius: 6px;
+        }
+        .modal select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .modal-actions { display: flex; gap: 10px; justify-content: center; }
+        .modal-queue-btn {
+            padding: 10px 24px;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--queue-color);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .modal-queue-btn:hover { background-color: var(--queue-hover-color); }
+        .modal-cancel-btn {
+            padding: 10px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--reset-color);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .modal-cancel-btn:hover { background-color: var(--reset-hover-color); }
 
-        .dropdown:hover .dropdown-content {display: block;}
-
+        /* ── Responsive ── */
         @media (max-width: 600px) {
-             h1 {
-                font-size: 1.5em;
-            }
-            .player-oval {
-                width: 80px;
-                height: 50px;
-            }
-            .player-oval .player-name-on-map {
-                font-size: 12px;
-            }
-             .timers-container {
-                flex-direction: column;
-            }
-            .add-player-form {
-                flex-direction: column;
-            }
+            h1 { font-size: 1.5em; }
+            .player-oval { width: 80px; height: 50px; }
+            .player-oval .player-name-on-map { font-size: 12px; }
+            .timers-container { flex-direction: column; }
+            .add-player-form { flex-direction: column; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Sub Queue Modal -->
+    <div class="modal-overlay" id="sub-modal">
+        <div class="modal">
+            <h2 id="modal-title">Queue Substitution</h2>
+            <div class="modal-player-label" id="modal-player-label"></div>
+            <select id="modal-select">
+                <option value="">— select a player —</option>
+            </select>
+            <div class="modal-actions">
+                <button class="modal-queue-btn" id="modal-queue-btn">Queue</button>
+                <button class="modal-cancel-btn" id="modal-cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <h1>Soccer Substitution Tracker</h1>
@@ -373,19 +498,34 @@
         <div class="timers-container">
             <div class="master-timer-container">
                 <label for="match-duration">Set Match Duration (minutes):</label>
-                <input type="number" id="match-duration" value="45" min="1" style="width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                <input type="number" id="match-duration" value="45" min="1"
+                       style="width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
                 <div id="master-timer">45:00</div>
                 <div class="controls">
                     <button id="play-pause-resume" class="control-button">Play</button>
-                     <div class="dropdown">
+                    <button id="sub-now-button" class="control-button">⚡ Sub Now!</button>
+                    <button id="reset-button" class="control-button">Reset</button>
+                    <div class="dropdown">
                         <button class="dropdown-button">💾</button>
                         <div class="dropdown-content">
                             <a id="save-data">Save to Browser</a>
                             <a id="export-data">Export to File</a>
-                            <a id="import-data-label" for="import-file" >Import from File</a>
+                            <a id="import-data-label">Import from File</a>
                             <input type="file" id="import-file" accept=".json" style="display: none;">
                         </div>
                     </div>
+                </div>
+
+                <div id="sub-timer-section">
+                    <div class="sub-timer-controls">
+                        <label>
+                            <input type="checkbox" id="sub-timer-enabled">
+                            Sub Timer:
+                        </label>
+                        <input type="number" id="sub-timer-duration" value="5" min="1" max="60">
+                        <span>min</span>
+                    </div>
+                    <div id="sub-timer-display" class="hidden">05:00</div>
                 </div>
             </div>
         </div>
@@ -404,156 +544,371 @@
                 <input type="text" id="new-player-name" placeholder="Enter New Player's Name">
                 <button id="add-player-button">Add Player</button>
             </div>
-             <p id="player-list-comment">Players are sorted by who has been in the game the longest.</p>
-            <ul id="player-list">
-                <!-- Player items will be dynamically inserted here -->
-            </ul>
+
+            <div class="field-size-row">
+                <label for="max-on-field">Players on field:</label>
+                <input type="number" id="max-on-field" value="7" min="1" max="99">
+                <span id="field-count-badge">0 / 7 on field</span>
+            </div>
+
+            <p id="player-list-comment">Players are sorted by who has been in the game the longest.</p>
+            <ul id="player-list"></ul>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const field = document.getElementById('field');
-            const masterTimerEl = document.getElementById('master-timer');
-            const playPauseResumeBtn = document.getElementById('play-pause-resume');
-            const matchDurationInput = document.getElementById('match-duration');
-            
-            const newPlayerNameInput = document.getElementById('new-player-name');
-            const addPlayerBtn = document.getElementById('add-player-button');
-            const playerList = document.getElementById('player-list');
+            const field               = document.getElementById('field');
+            const masterTimerEl       = document.getElementById('master-timer');
+            const playPauseResumeBtn  = document.getElementById('play-pause-resume');
+            const subNowBtn           = document.getElementById('sub-now-button');
+            const resetBtn            = document.getElementById('reset-button');
+            const matchDurationInput  = document.getElementById('match-duration');
+            const newPlayerNameInput  = document.getElementById('new-player-name');
+            const addPlayerBtn        = document.getElementById('add-player-button');
+            const playerList          = document.getElementById('player-list');
+            const maxOnFieldInput     = document.getElementById('max-on-field');
+            const fieldCountBadge     = document.getElementById('field-count-badge');
+            const saveDataBtn         = document.getElementById('save-data');
+            const exportDataBtn       = document.getElementById('export-data');
+            const importDataLabel     = document.getElementById('import-data-label');
+            const importFileInput     = document.getElementById('import-file');
 
-            const saveDataBtn = document.getElementById('save-data');
-            const exportDataBtn = document.getElementById('export-data');
-            const importDataLabel = document.getElementById('import-data-label');
-            const importFileInput = document.getElementById('import-file');
+            // Sub timer elements
+            const subTimerEnabledInput  = document.getElementById('sub-timer-enabled');
+            const subTimerDurationInput = document.getElementById('sub-timer-duration');
+            const subTimerDisplay       = document.getElementById('sub-timer-display');
 
+            // Modal elements
+            const subModal            = document.getElementById('sub-modal');
+            const modalTitle          = document.getElementById('modal-title');
+            const modalPlayerLabel    = document.getElementById('modal-player-label');
+            const modalSelect         = document.getElementById('modal-select');
+            const modalQueueBtn       = document.getElementById('modal-queue-btn');
+            const modalCancelBtn      = document.getElementById('modal-cancel-btn');
+
+            // ─── State ───────────────────────────────────────────────────────────
             let players = [];
-            let masterTimerInterval;
-            let timerState = 'paused'; // 'paused', 'playing'
-            let masterTimeRemaining = parseInt(matchDurationInput.value) * 60;
-            let playerTimerInterval;
+            let timerInterval;
+            let timerState = 'paused';
+            let playStartWallTime     = null;
+            let masterTimeAtPlayStart = 0;
+            let masterTimeRemaining   = parseInt(matchDurationInput.value) * 60;
 
-            // Drag and Drop Logic
-            let activeOval = null;
-            let initialX, initialY, xOffset = 0, yOffset = 0;
+            // pendingSubs: array of { outId, inId }
+            let pendingSubs = [];
 
-            const dragStart = (e) => {
-                activeOval = e.target.closest('.player-oval');
-                if (!activeOval) return;
+            // Modal context
+            let modalContext = null; // { triggerId, triggerRole: 'out' | 'in' }
 
-                const parentRect = field.getBoundingClientRect();
-                if (e.type === 'touchstart') {
-                    initialX = e.touches[0].clientX - activeOval.offsetLeft;
-                    initialY = e.touches[0].clientY - activeOval.offsetTop;
-                } else {
-                    initialX = e.clientX - activeOval.offsetLeft;
-                    initialY = e.clientY - activeOval.offsetTop;
+            // ─── Sub Timer state ─────────────────────────────────────────────────
+            // Mirrors the master-timer's wall-clock approach so it survives phone sleep.
+            let subTimerActive          = false; // true after Sub Now! pressed, until it expires
+            let subTimerStartWallTime   = null;  // Date.now() of current cycle start (null when paused/inactive)
+            let subTimerPausedRemaining = null;  // remaining seconds when paused (null when running)
+
+            // ─── Audio Engine ────────────────────────────────────────────────────
+            // We synthesize sounds on the fly with the Web Audio API so the file stays
+            // self-contained (no embedded base64 audio).
+            let audioCtx = null;
+            const ensureAudioCtx = () => {
+                if (!audioCtx) {
+                    const Ctor = window.AudioContext || window.webkitAudioContext;
+                    if (Ctor) audioCtx = new Ctor();
                 }
-            };
-            
-            const dragEnd = (e) => {
-                if (!activeOval) return;
-                
-                const playerId = activeOval.dataset.id;
-                const player = players.find(p => p.id == playerId);
-                if (player) {
-                    player.position = {
-                        x: activeOval.style.left,
-                        y: activeOval.style.top
-                    };
-                }
-                
-                activeOval = null;
+                // iOS / some browsers leave the context suspended until a user gesture.
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                return audioCtx;
             };
 
-            const drag = (e) => {
-                if (!activeOval) return;
-                e.preventDefault();
-                
-                let currentX, currentY;
-                const fieldRect = field.getBoundingClientRect();
-
-                if (e.type === 'touchmove') {
-                    currentX = e.touches[0].clientX - initialX;
-                    currentY = e.touches[0].clientY - initialY;
-                } else {
-                    currentX = e.clientX - initialX;
-                    currentY = e.clientY - initialY;
-                }
-
-                // Constrain movement within the field
-                const ovalRect = activeOval.getBoundingClientRect();
-                
-                let newLeft = currentX;
-                let newTop = currentY;
-
-                if (newLeft < 0) newLeft = 0;
-                if (newTop < 0) newTop = 0;
-                if (newLeft + ovalRect.width > fieldRect.width) newLeft = fieldRect.width - ovalRect.width;
-                if (newTop + ovalRect.height > fieldRect.height) newTop = fieldRect.height - ovalRect.height;
-                
-                activeOval.style.left = `${newLeft}px`;
-                activeOval.style.top = `${newTop}px`;
+            // Short crisp click — high-pitched chirp that decays in 80ms.
+            const playTap = () => {
+                const ctx = ensureAudioCtx();
+                if (!ctx) return;
+                const t   = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gn  = ctx.createGain();
+                osc.connect(gn);
+                gn.connect(ctx.destination);
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(1400, t);
+                osc.frequency.exponentialRampToValueAtTime(500, t + 0.06);
+                gn.gain.setValueAtTime(0.18, t);
+                gn.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+                osc.start(t);
+                osc.stop(t + 0.09);
             };
 
-            field.addEventListener('mousedown', dragStart);
-            document.addEventListener('mouseup', dragEnd);
-            document.addEventListener('mousemove', drag);
-            
-            field.addEventListener('touchstart', dragStart, { passive: false });
-            document.addEventListener('touchend', dragEnd);
-            document.addEventListener('touchmove', drag, { passive: false });
+            // 2-second buzz — two slightly detuned square waves for that classic alarm bite.
+            const playBuzz = () => {
+                const ctx = ensureAudioCtx();
+                if (!ctx) return;
+                const t = ctx.currentTime;
+                const duration = 2.0;
 
-            // Timer Logic
+                const osc1 = ctx.createOscillator();
+                const osc2 = ctx.createOscillator();
+                const gn   = ctx.createGain();
+                osc1.connect(gn);
+                osc2.connect(gn);
+                gn.connect(ctx.destination);
+                osc1.type = 'square';
+                osc2.type = 'square';
+                osc1.frequency.value = 220;
+                osc2.frequency.value = 233; // detune for beating
+                // Pulse the volume so it sounds like an alarm rather than a steady tone.
+                const pulseHz = 6;
+                const total = duration;
+                gn.gain.setValueAtTime(0.0001, t);
+                for (let i = 0; i < total * pulseHz; i++) {
+                    const ti = t + i / pulseHz;
+                    gn.gain.linearRampToValueAtTime(0.32, ti + 0.04);
+                    gn.gain.linearRampToValueAtTime(0.05, ti + (1 / pulseHz));
+                }
+                gn.gain.linearRampToValueAtTime(0.0001, t + total);
+                osc1.start(t);
+                osc2.start(t);
+                osc1.stop(t + total + 0.05);
+                osc2.stop(t + total + 0.05);
+            };
+
+            // Tap on every clickable button or dropdown link. Disabled buttons don't fire
+            // click events, so the 'Queued' state correctly stays silent.
+            document.body.addEventListener('click', (e) => {
+                const target = e.target.closest('button, .dropdown-content a');
+                if (!target) return;
+                if (target.disabled) return;
+                playTap();
+            });
+
+
+            // ─── Helpers ─────────────────────────────────────────────────────────
+
             const formatTime = (seconds) => {
-                const mins = Math.floor(seconds / 60);
-                const secs = seconds % 60;
+                const s = Math.max(0, Math.round(seconds));
+                const mins = Math.floor(s / 60);
+                const secs = s % 60;
                 return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             };
 
-            const updateMasterTimerDisplay = () => {
-                masterTimerEl.textContent = formatTime(masterTimeRemaining);
+            const elapsedSincePlay = () =>
+                playStartWallTime === null ? 0 : (Date.now() - playStartWallTime) / 1000;
+
+            const getDisplayTime = (player) => {
+                if (player.inGame && timerState === 'playing' && player.gameStartWallTime !== null)
+                    return player.time + (Date.now() - player.gameStartWallTime) / 1000;
+                return player.time;
             };
+
+            const isPlayerQueued = (id) =>
+                pendingSubs.some(s => s.outId === id || s.inId === id);
+
+            const onFieldCount = () => players.filter(p => p.inGame).length;
+
+            const maxOnField = () => Math.max(1, parseInt(maxOnFieldInput.value) || 1);
+
+            const fieldIsUnderMax = () => onFieldCount() < maxOnField();
+
+            // ─── Field-count badge ────────────────────────────────────────────────
+
+            const updateFieldCountBadge = () => {
+                const cur = onFieldCount();
+                const max = maxOnField();
+                fieldCountBadge.textContent = `${cur} / ${max} on field`;
+                fieldCountBadge.className   = cur >= max ? 'at-max' : 'under-max';
+            };
+
+            // Re-render whenever the max changes so "+" / normal buttons swap instantly
+            maxOnFieldInput.addEventListener('input', () => {
+                updateFieldCountBadge();
+                renderPlayers();
+            });
+
+            // ─── Sub Now button visibility ────────────────────────────────────────
+
+            const updateSubNowButton = () => {
+                subNowBtn.style.display = pendingSubs.length > 0 ? 'inline-block' : 'none';
+            };
+
+            // ─── Sub Timer Logic ──────────────────────────────────────────────────
+
+            const subTimerDuration = () =>
+                Math.max(1, parseInt(subTimerDurationInput.value) || 1) * 60;
+
+            // Live remaining seconds in the current cycle.
+            const subTimerRemaining = () => {
+                if (!subTimerActive) return subTimerDuration();
+                if (subTimerStartWallTime === null) {
+                    // Paused (or staged-while-paused).
+                    return subTimerPausedRemaining !== null
+                        ? subTimerPausedRemaining
+                        : subTimerDuration();
+                }
+                const elapsed = (Date.now() - subTimerStartWallTime) / 1000;
+                return subTimerDuration() - elapsed;
+            };
+
+            const updateSubTimerDisplay = () => {
+                const enabled = subTimerEnabledInput.checked;
+                if (!enabled) {
+                    subTimerDisplay.classList.add('hidden');
+                    return;
+                }
+                subTimerDisplay.classList.remove('hidden');
+
+                const remaining = subTimerRemaining();
+                subTimerDisplay.textContent = formatTime(Math.max(0, remaining));
+
+                // Visual treatment: dim when not yet started, warn under 30s, expired flash
+                subTimerDisplay.classList.toggle('inactive', !subTimerActive);
+                subTimerDisplay.classList.toggle('warning',
+                    subTimerActive && remaining > 0 && remaining <= 30);
+                subTimerDisplay.classList.toggle('expired', subTimerActive && remaining <= 0);
+            };
+
+            // Called inside the master tick(): checks for cycle expiry.
+            const tickSubTimer = () => {
+                if (!subTimerEnabledInput.checked) return;
+                if (!subTimerActive || subTimerStartWallTime === null) return;
+                const elapsed = (Date.now() - subTimerStartWallTime) / 1000;
+                if (elapsed >= subTimerDuration()) {
+                    // Cycle complete — buzz once and stop. Coach can press Sub Now! again.
+                    playBuzz();
+                    subTimerActive          = false;
+                    subTimerStartWallTime   = null;
+                    subTimerPausedRemaining = null;
+                }
+            };
+
+            // Stop and reset the sub timer (e.g. on global Reset or when disabling).
+            const resetSubTimer = () => {
+                subTimerActive          = false;
+                subTimerStartWallTime   = null;
+                subTimerPausedRemaining = null;
+                updateSubTimerDisplay();
+            };
+
+            // Start a fresh sub-timer cycle (called from the Sub Now! handler).
+            const startSubTimerCycle = () => {
+                if (!subTimerEnabledInput.checked) return;
+                subTimerActive = true;
+                if (timerState === 'playing') {
+                    subTimerStartWallTime   = Date.now();
+                    subTimerPausedRemaining = null;
+                } else {
+                    // Game is paused — stage the timer with full duration; it'll start
+                    // counting when Play is pressed.
+                    subTimerStartWallTime   = null;
+                    subTimerPausedRemaining = subTimerDuration();
+                }
+                updateSubTimerDisplay();
+            };
+
+            // Toggle / duration handlers
+            subTimerEnabledInput.addEventListener('change', () => {
+                if (!subTimerEnabledInput.checked) resetSubTimer();
+                updateSubTimerDisplay();
+            });
+            subTimerDurationInput.addEventListener('input', updateSubTimerDisplay);
+
+            // ─── Master Timer Display ─────────────────────────────────────────────
+
+            const updateMasterTimerDisplay = () => {
+                const display = timerState === 'playing'
+                    ? masterTimeAtPlayStart - elapsedSincePlay()
+                    : masterTimeRemaining;
+                masterTimerEl.textContent = formatTime(display);
+            };
+
+            // ─── Timer Tick ───────────────────────────────────────────────────────
+
+            const commitPlayerTimes = () => {
+                players.forEach(p => {
+                    if (p.inGame && p.gameStartWallTime !== null) {
+                        p.time += (Date.now() - p.gameStartWallTime) / 1000;
+                        p.gameStartWallTime = null;
+                    }
+                });
+            };
+
+            const tick = () => {
+                const remaining = masterTimeAtPlayStart - elapsedSincePlay();
+                if (remaining <= 0) {
+                    masterTimeRemaining = 0;
+                    commitPlayerTimes();
+                    clearInterval(timerInterval);
+                    timerState = 'paused';
+                    playPauseResumeBtn.textContent = 'Play';
+                    updateMasterTimerDisplay();
+                    updateSubTimerDisplay();
+                    renderPlayers();
+                    return;
+                }
+                tickSubTimer();
+                updateMasterTimerDisplay();
+                updateSubTimerDisplay();
+                renderPlayers();
+            };
+
+            // ─── Play / Pause ─────────────────────────────────────────────────────
 
             const startTimers = () => {
-                 if (timerState === 'playing') return;
+                if (timerState === 'playing') return;
                 timerState = 'playing';
                 playPauseResumeBtn.textContent = 'Pause';
-                
-                masterTimerInterval = setInterval(() => {
-                    if (masterTimeRemaining > 0) {
-                        masterTimeRemaining--;
-                        updateMasterTimerDisplay();
-                    } else {
-                        clearInterval(masterTimerInterval);
-                        timerState = 'paused';
-                        playPauseResumeBtn.textContent = 'Play';
-                    }
-                }, 1000);
+                playStartWallTime     = Date.now();
+                masterTimeAtPlayStart = masterTimeRemaining;
+                players.forEach(p => { if (p.inGame) p.gameStartWallTime = Date.now(); });
 
-                playerTimerInterval = setInterval(() => {
-                    players.forEach(player => {
-                        if (player.inGame) {
-                            player.time++;
-                        }
-                    });
-                    renderPlayers();
-                }, 1000);
-            };
-            
-            const pauseTimers = () => {
-                timerState = 'paused';
-                playPauseResumeBtn.textContent = 'Resume';
-                clearInterval(masterTimerInterval);
-                clearInterval(playerTimerInterval);
-            };
-            
-            playPauseResumeBtn.addEventListener('click', () => {
-                if (timerState === 'paused') {
-                    startTimers();
-                } else {
-                    pauseTimers();
+                // Resume the sub-timer using whatever remaining seconds were stashed at pause.
+                if (subTimerActive && subTimerPausedRemaining !== null) {
+                    const consumed = subTimerDuration() - subTimerPausedRemaining;
+                    subTimerStartWallTime   = Date.now() - consumed * 1000;
+                    subTimerPausedRemaining = null;
                 }
+
+                timerInterval = setInterval(tick, 500);
+            };
+
+            const pauseTimers = () => {
+                if (timerState !== 'playing') return;
+                clearInterval(timerInterval);
+                masterTimeRemaining = Math.max(0, masterTimeAtPlayStart - elapsedSincePlay());
+                commitPlayerTimes();
+
+                // Stash the sub-timer's remaining seconds and freeze it.
+                if (subTimerActive && subTimerStartWallTime !== null) {
+                    subTimerPausedRemaining = Math.max(0, subTimerRemaining());
+                    subTimerStartWallTime   = null;
+                }
+
+                timerState = 'paused';
+                playStartWallTime = null;
+                playPauseResumeBtn.textContent = 'Resume';
+                updateMasterTimerDisplay();
+                updateSubTimerDisplay();
+                renderPlayers();
+            };
+
+            playPauseResumeBtn.addEventListener('click', () => {
+                timerState === 'paused' ? startTimers() : pauseTimers();
+            });
+
+            // ─── Reset ────────────────────────────────────────────────────────────
+
+            resetBtn.addEventListener('click', () => {
+                if (!confirm('Reset all timers to zero?')) return;
+                clearInterval(timerInterval);
+                timerState = 'paused';
+                playStartWallTime = null;
+                masterTimeRemaining = parseInt(matchDurationInput.value) * 60;
+                playPauseResumeBtn.textContent = 'Play';
+                updateMasterTimerDisplay();
+                players.forEach(p => { p.time = 0; p.gameStartWallTime = null; });
+                pendingSubs = [];
+                updateSubNowButton();
+                resetSubTimer();
+                renderPlayers();
             });
 
             matchDurationInput.addEventListener('change', () => {
@@ -563,41 +918,190 @@
                 }
             });
 
+            // ─── Sub Queue Modal ──────────────────────────────────────────────────
 
-            // Player Management
-            const addPlayer = (name, time = 0, inGame = false, id = Date.now(), position = {x: '20px', y: '20px'}) => {
+            const openSubModal = (triggerId, triggerRole) => {
+                const triggerPlayer = players.find(p => p.id === triggerId);
+                if (!triggerPlayer) return;
+
+                const candidates = players.filter(p =>
+                    triggerRole === 'out'
+                        ? !p.inGame && !isPlayerQueued(p.id)
+                        :  p.inGame && !isPlayerQueued(p.id)
+                );
+
+                if (candidates.length === 0) {
+                    alert(triggerRole === 'out'
+                        ? 'No available bench players to sub in.'
+                        : 'No available on-field players to sub out.');
+                    return;
+                }
+
+                modalContext = { triggerId, triggerRole };
+                modalTitle.textContent       = triggerRole === 'out' ? 'Sub Out' : 'Sub In';
+                modalPlayerLabel.textContent = triggerRole === 'out'
+                    ? `Subbing out: ${triggerPlayer.name}`
+                    : `Subbing in: ${triggerPlayer.name}`;
+
+                modalSelect.innerHTML = '<option value="">— select a player —</option>';
+                candidates.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value       = p.id;
+                    opt.textContent = `${p.name}  (${formatTime(getDisplayTime(p))})`;
+                    modalSelect.appendChild(opt);
+                });
+
+                subModal.classList.add('open');
+            };
+
+            const closeSubModal = () => {
+                subModal.classList.remove('open');
+                modalContext = null;
+                modalSelect.value = '';
+            };
+
+            modalCancelBtn.addEventListener('click', closeSubModal);
+            subModal.addEventListener('click', (e) => { if (e.target === subModal) closeSubModal(); });
+
+            modalQueueBtn.addEventListener('click', () => {
+                if (modalSelect.value === '') { alert('Please select a player.'); return; }
+                const selectedId = parseInt(modalSelect.value);
+                if (!modalContext) return;
+
+                const { triggerId, triggerRole } = modalContext;
+                const outId = triggerRole === 'out' ? triggerId : selectedId;
+                const inId  = triggerRole === 'out' ? selectedId : triggerId;
+
+                if (isPlayerQueued(outId) || isPlayerQueued(inId)) {
+                    alert('One of these players is already in a queued substitution.');
+                    closeSubModal();
+                    return;
+                }
+
+                pendingSubs.push({ outId, inId });
+                updateSubNowButton();
+                closeSubModal();
+                renderPlayers();
+            });
+
+            // ─── Execute Queued Subs ──────────────────────────────────────────────
+
+            const executeQueuedSubs = () => {
+                pendingSubs.forEach(({ outId, inId }) => {
+                    const outPlayer = players.find(p => p.id === outId);
+                    const inPlayer  = players.find(p => p.id === inId);
+                    if (!outPlayer || !inPlayer) return;
+
+                    inPlayer.position = { ...outPlayer.position };
+
+                    if (timerState === 'playing' && outPlayer.gameStartWallTime !== null) {
+                        outPlayer.time += (Date.now() - outPlayer.gameStartWallTime) / 1000;
+                        outPlayer.gameStartWallTime = null;
+                    }
+                    outPlayer.inGame = false;
+
+                    inPlayer.inGame = true;
+                    if (timerState === 'playing') inPlayer.gameStartWallTime = Date.now();
+                });
+
+                pendingSubs = [];
+                updateSubNowButton();
+                startSubTimerCycle();
+                renderPlayers();
+            };
+
+            subNowBtn.addEventListener('click', executeQueuedSubs);
+
+            // ─── Quick-add to field (the "+" button) ─────────────────────────────
+
+            // Returns a staggered default position so new player ovals don't pile up.
+            const nextFieldPosition = () => {
+                const count = onFieldCount();
+                const col   = count % 4;
+                const row   = Math.floor(count / 4);
+                return { x: `${20 + col * 115}px`, y: `${20 + row * 75}px` };
+            };
+
+            const quickAddToField = (id) => {
+                const player = players.find(p => p.id === id);
+                if (!player || player.inGame) return; // already on field — no-op
+                player.position = nextFieldPosition();
+                player.inGame   = true;
+                if (timerState === 'playing') player.gameStartWallTime = Date.now();
+                renderPlayers();
+            };
+
+            // ─── Drag and Drop ────────────────────────────────────────────────────
+
+            let activeOval = null;
+            let initialX, initialY;
+
+            const dragStart = (e) => {
+                activeOval = e.target.closest('.player-oval');
+                if (!activeOval) return;
+                if (e.type === 'touchstart') {
+                    initialX = e.touches[0].clientX - activeOval.offsetLeft;
+                    initialY = e.touches[0].clientY - activeOval.offsetTop;
+                } else {
+                    initialX = e.clientX - activeOval.offsetLeft;
+                    initialY = e.clientY - activeOval.offsetTop;
+                }
+            };
+
+            const dragEnd = () => {
+                if (!activeOval) return;
+                const player = players.find(p => p.id == activeOval.dataset.id);
+                if (player) player.position = { x: activeOval.style.left, y: activeOval.style.top };
+                activeOval = null;
+            };
+
+            const drag = (e) => {
+                if (!activeOval) return;
+                e.preventDefault();
+                const fieldRect = field.getBoundingClientRect();
+                const currentX  = e.type === 'touchmove' ? e.touches[0].clientX - initialX : e.clientX - initialX;
+                const currentY  = e.type === 'touchmove' ? e.touches[0].clientY - initialY : e.clientY - initialY;
+                const ovalRect  = activeOval.getBoundingClientRect();
+                activeOval.style.left = `${Math.max(0, Math.min(currentX, fieldRect.width  - ovalRect.width))}px`;
+                activeOval.style.top  = `${Math.max(0, Math.min(currentY, fieldRect.height - ovalRect.height))}px`;
+            };
+
+            field.addEventListener('mousedown', dragStart);
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('mousemove', drag);
+            field.addEventListener('touchstart', dragStart, { passive: false });
+            document.addEventListener('touchend', dragEnd);
+            document.addEventListener('touchmove', drag, { passive: false });
+
+            // ─── Player Management ────────────────────────────────────────────────
+
+            const addPlayer = (name, time = 0, inGame = false, id = Date.now(), position = { x: '20px', y: '20px' }) => {
                 if (!name.trim()) return;
-                players.push({ id, name, time, inGame, position });
+                players.push({ id, name, time, inGame, position, gameStartWallTime: null });
                 newPlayerNameInput.value = '';
                 renderPlayers();
             };
-            
-            const removePlayer = (id) => {
-                players = players.filter(p => p.id !== id);
-                renderPlayers();
-            };
 
-            const subIn = (id) => {
+            const removePlayer = (id) => {
+                // If the player being removed is on the field, their timer must be committed first.
                 const player = players.find(p => p.id === id);
-                if (player) {
-                    player.inGame = true;
-                    renderPlayers();
+                if (player && player.inGame && timerState === 'playing' && player.gameStartWallTime !== null) {
+                    player.time += (Date.now() - player.gameStartWallTime) / 1000;
+                    player.gameStartWallTime = null;
                 }
-            };
-            
-            const subOut = (id) => {
-                const player = players.find(p => p.id === id);
-                if (player) {
-                    player.inGame = false;
-                    renderPlayers();
-                }
+                // Clear any pending sub involving this player
+                pendingSubs = pendingSubs.filter(s => s.outId !== id && s.inId !== id);
+                updateSubNowButton();
+                players = players.filter(p => p.id !== id);
+                // renderPlayers recalculates onFieldCount → may flip buttons back to "+"
+                renderPlayers();
             };
 
             addPlayerBtn.addEventListener('click', () => addPlayer(newPlayerNameInput.value));
             newPlayerNameInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') addPlayer(newPlayerNameInput.value);
             });
-            
+
             playerList.addEventListener('click', (e) => {
                 const playerItem = e.target.closest('.player-item');
                 if (!playerItem) return;
@@ -605,9 +1109,12 @@
 
                 if (e.target.classList.contains('sub-toggle-button')) {
                     const player = players.find(p => p.id === id);
-                    if (player) {
-                        player.inGame ? subOut(id) : subIn(id);
-                    }
+                    if (!player) return;
+                    openSubModal(id, player.inGame ? 'out' : 'in');
+                }
+
+                if (e.target.classList.contains('add-to-field-button')) {
+                    quickAddToField(id);
                 }
 
                 if (e.target.classList.contains('remove-player-button')) {
@@ -615,28 +1122,46 @@
                 }
             });
 
-            // Rendering
+            // ─── Rendering ────────────────────────────────────────────────────────
+
             const renderPlayers = () => {
-                players.sort((a, b) => b.time - a.time);
-                
+                const sorted   = [...players].sort((a, b) => getDisplayTime(b) - getDisplayTime(a));
+                const underMax = fieldIsUnderMax();
+
                 playerList.innerHTML = '';
                 field.querySelectorAll('.player-oval').forEach(oval => oval.remove());
-                
-                players.forEach(player => {
-                    const li = document.createElement('li');
-                    li.className = 'player-item';
+
+                updateFieldCountBadge();
+
+                sorted.forEach(player => {
+                    const li      = document.createElement('li');
+                    li.className  = 'player-item';
                     li.dataset.id = player.id;
 
-                    const subButtonText = player.inGame ? 'Sub Out' : 'Sub In';
-                    const subButtonClass = player.inGame ? 'is-subbed-in' : 'is-subbed-out';
+                    const queued = isPlayerQueued(player.id);
+                    let subButtonHtml;
+
+                    if (queued) {
+                        // Orange "Queued" — highest priority, always shown regardless of fill state
+                        subButtonHtml = `<button class="queued-button" disabled>Queued</button>`;
+                    } else if (underMax) {
+                        // Field is not yet full → show purple "+" for everyone.
+                        // On-field players get a muted variant since they're already counted.
+                        const extra = player.inGame ? ' already-on-field' : '';
+                        subButtonHtml = `<button class="add-to-field-button${extra}" ${player.inGame ? 'disabled' : ''}>+</button>`;
+                    } else if (player.inGame) {
+                        subButtonHtml = `<button class="sub-toggle-button is-subbed-in">Sub Out</button>`;
+                    } else {
+                        subButtonHtml = `<button class="sub-toggle-button is-subbed-out">Sub In</button>`;
+                    }
 
                     li.innerHTML = `
                         <div class="player-info">
                             <span class="player-name">${player.name}</span>
-                            <span class="player-timer">${formatTime(player.time)}</span>
+                            <span class="player-timer">${formatTime(getDisplayTime(player))}</span>
                         </div>
                         <div class="player-controls">
-                            <button class="sub-toggle-button ${subButtonClass}">${subButtonText}</button>
+                            ${subButtonHtml}
                             <button class="remove-player-button">❌</button>
                         </div>
                     `;
@@ -644,51 +1169,83 @@
 
                     if (player.inGame) {
                         const oval = document.createElement('div');
-                        oval.className = 'player-oval';
+                        oval.className  = 'player-oval';
                         oval.dataset.id = player.id;
                         oval.style.left = player.position.x;
-                        oval.style.top = player.position.y;
-                        oval.innerHTML = `<span class="player-name-on-map">${player.name}</span>`;
+                        oval.style.top  = player.position.y;
+                        oval.innerHTML  = `<span class="player-name-on-map">${player.name}</span>`;
+                        if (queued) oval.style.boxShadow = '0 0 12px 4px var(--queue-color)';
                         field.appendChild(oval);
                     }
                 });
             };
-            
-            // Data Persistence
-            const saveToLocalStorage = () => {
-                const appData = {
-                    players,
-                    masterTimeRemaining,
-                    matchDuration: parseInt(matchDurationInput.value)
+
+            // ─── Data Persistence ─────────────────────────────────────────────────
+
+            const snapshotState = () => {
+                const isPlaying = timerState === 'playing';
+                const elapsed   = elapsedSincePlay();
+
+                // Compute current sub-timer remaining, regardless of running/paused state.
+                let subRemaining = null;
+                if (subTimerActive) {
+                    subRemaining = Math.max(0, subTimerRemaining());
+                }
+
+                return {
+                    players: players.map(p => ({
+                        ...p,
+                        time: isPlaying && p.inGame && p.gameStartWallTime !== null
+                            ? p.time + (Date.now() - p.gameStartWallTime) / 1000
+                            : p.time,
+                        gameStartWallTime: null
+                    })),
+                    masterTimeRemaining: isPlaying
+                        ? Math.max(0, masterTimeAtPlayStart - elapsed)
+                        : masterTimeRemaining,
+                    matchDuration:   parseInt(matchDurationInput.value),
+                    maxOnField:      parseInt(maxOnFieldInput.value),
+                    subTimerEnabled: subTimerEnabledInput.checked,
+                    subTimerMinutes: parseInt(subTimerDurationInput.value),
+                    subTimerActive,
+                    subTimerRemaining: subRemaining
                 };
-                localStorage.setItem('soccerTrackerData', JSON.stringify(appData));
+            };
+
+            const saveToLocalStorage = () => {
+                localStorage.setItem('soccerTrackerData', JSON.stringify(snapshotState()));
                 alert('Data saved to browser!');
             };
 
             const loadFromLocalStorage = () => {
                 const savedData = localStorage.getItem('soccerTrackerData');
-                if (savedData) {
-                    const appData = JSON.parse(savedData);
-                    players = appData.players || [];
-                    masterTimeRemaining = appData.masterTimeRemaining !== undefined ? appData.masterTimeRemaining : (parseInt(matchDurationInput.value) * 60 || 2700);
-                    matchDurationInput.value = appData.matchDuration || 45;
-                    renderPlayers();
+                if (!savedData) return;
+                const appData = JSON.parse(savedData);
+                players             = (appData.players || []).map(p => ({ ...p, gameStartWallTime: null }));
+                masterTimeRemaining = appData.masterTimeRemaining ?? (parseInt(matchDurationInput.value) * 60 || 2700);
+                matchDurationInput.value = appData.matchDuration || 45;
+                if (appData.maxOnField) maxOnFieldInput.value = appData.maxOnField;
+
+                // Sub timer
+                subTimerEnabledInput.checked = !!appData.subTimerEnabled;
+                if (appData.subTimerMinutes) subTimerDurationInput.value = appData.subTimerMinutes;
+                if (appData.subTimerActive && appData.subTimerRemaining !== null && appData.subTimerRemaining !== undefined) {
+                    // Restore as a "paused" sub timer — will resume cleanly when Play is pressed.
+                    subTimerActive          = true;
+                    subTimerStartWallTime   = null;
+                    subTimerPausedRemaining = appData.subTimerRemaining;
                 }
+
+                renderPlayers();
             };
-            
+
             const exportToFile = () => {
-                const appData = {
-                    players,
-                    masterTimeRemaining,
-                    matchDuration: parseInt(matchDurationInput.value)
-                };
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
-                const downloadAnchorNode = document.createElement('a');
-                downloadAnchorNode.setAttribute("href",     dataStr);
-                downloadAnchorNode.setAttribute("download", "soccer_tracker_data.json");
-                document.body.appendChild(downloadAnchorNode);
-                downloadAnchorNode.click();
-                downloadAnchorNode.remove();
+                const a = document.createElement('a');
+                a.setAttribute('href', 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(snapshotState(), null, 2)));
+                a.setAttribute('download', 'soccer_tracker_data.json');
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
             };
 
             const importFromFile = (event) => {
@@ -697,16 +1254,32 @@
                     try {
                         const appData = JSON.parse(e.target.result);
                         if (appData.players && appData.masterTimeRemaining !== undefined && appData.matchDuration !== undefined) {
-                            players = appData.players;
+                            players             = appData.players.map(p => ({ ...p, gameStartWallTime: null }));
                             masterTimeRemaining = appData.masterTimeRemaining;
                             matchDurationInput.value = appData.matchDuration;
+                            if (appData.maxOnField) maxOnFieldInput.value = appData.maxOnField;
+
+                            // Sub timer
+                            subTimerEnabledInput.checked = !!appData.subTimerEnabled;
+                            if (appData.subTimerMinutes) subTimerDurationInput.value = appData.subTimerMinutes;
+                            subTimerActive          = false;
+                            subTimerStartWallTime   = null;
+                            subTimerPausedRemaining = null;
+                            if (appData.subTimerActive && appData.subTimerRemaining !== null && appData.subTimerRemaining !== undefined) {
+                                subTimerActive          = true;
+                                subTimerPausedRemaining = appData.subTimerRemaining;
+                            }
+
+                            pendingSubs = [];
+                            updateSubNowButton();
                             updateMasterTimerDisplay();
+                            updateSubTimerDisplay();
                             renderPlayers();
                             alert('Data imported successfully!');
                         } else {
                             alert('Invalid file format.');
                         }
-                    } catch (error) {
+                    } catch {
                         alert('Error reading file. Make sure it is a valid JSON file.');
                     }
                 };
@@ -718,9 +1291,15 @@
             importDataLabel.addEventListener('click', () => importFileInput.click());
             importFileInput.addEventListener('change', importFromFile);
 
-            // Initial Load
+            // ─── Page Visibility (phone screen wake) ──────────────────────────────
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && timerState === 'playing') tick();
+            });
+
+            // ─── Initial Load ─────────────────────────────────────────────────────
             loadFromLocalStorage();
             updateMasterTimerDisplay();
+            updateSubTimerDisplay();
             renderPlayers();
         });
     </script>
