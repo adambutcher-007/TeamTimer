@@ -1205,6 +1205,21 @@
                 }
             });
         };
+
+        // Reposition existing ovals on the field without rebuilding the DOM.
+        // Called on window resize (rotation, mobile URL bar show/hide) so positions
+        // stay relative to the field without disturbing scroll position.
+        const updateOvalPositions = () => {
+            const fr = field.getBoundingClientRect();
+            const ovalW = 100, ovalH = 60;
+            field.querySelectorAll('.player-oval').forEach(oval => {
+                const id = parseInt(oval.dataset.id);
+                const p  = players.find(pl => pl.id === id);
+                if (!p || p.position.xPct === undefined) return;
+                oval.style.left = `${(p.position.xPct / 100) * (fr.width  - ovalW)}px`;
+                oval.style.top  = `${(p.position.yPct / 100) * (fr.height - ovalH)}px`;
+            });
+        };
         const renderPlayers = () => {
             const sorted   = [...players].sort((a, b) => getDisplayTime(b) - getDisplayTime(a));
             const underMax = fieldIsUnderMax();
@@ -1318,8 +1333,9 @@
             if (!document.hidden && timerState === 'playing') updateTimerDisplays();
         });
 
-        // Re-render player ovals whenever the field resizes (rotation, window resize).
-        window.addEventListener('resize', renderPlayers);
+        // Re-position player ovals when the field resizes (rotation, mobile URL bar).
+        // Uses the lightweight updater so the player list and scroll position stay put.
+        window.addEventListener('resize', updateOvalPositions);
 
         // ════════════════════════════════════════════
         //  INITIAL LOAD
