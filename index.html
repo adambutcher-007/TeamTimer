@@ -979,7 +979,7 @@
                 return;
             }
             tickSubTimer();
-            updateMasterTimerDisplay(); updateSubTimerDisplay(); renderPlayers();
+            updateTimerDisplays();
         };
 
         // ════════════════════════════════════════════
@@ -1189,6 +1189,22 @@
         // ════════════════════════════════════════════
         //  RENDERING
         // ════════════════════════════════════════════
+
+        // Lightweight update called every tick: only patches text that changes.
+        // Never touches DOM structure, so scroll position is never disturbed.
+        const updateTimerDisplays = () => {
+            updateMasterTimerDisplay();
+            updateSubTimerDisplay();
+            // Update each player's time span in-place.
+            playerList.querySelectorAll('.player-item').forEach(li => {
+                const id = parseInt(li.dataset.id);
+                const p  = players.find(pl => pl.id === id);
+                if (p) {
+                    const span = li.querySelector('.player-timer');
+                    if (span) span.textContent = formatTime(getDisplayTime(p));
+                }
+            });
+        };
         const renderPlayers = () => {
             const sorted   = [...players].sort((a, b) => getDisplayTime(b) - getDisplayTime(a));
             const underMax = fieldIsUnderMax();
@@ -1299,7 +1315,7 @@
         //  PAGE VISIBILITY
         // ════════════════════════════════════════════
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && timerState === 'playing') tick();
+            if (!document.hidden && timerState === 'playing') updateTimerDisplays();
         });
 
         // Re-render player ovals whenever the field resizes (rotation, window resize).
