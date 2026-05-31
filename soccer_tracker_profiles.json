@@ -1,0 +1,123 @@
+{
+  "version": 2,
+  "exportedAt": "2026-05-30T19:23:34.937Z",
+  "activeProfileId": "mooeu8l19fkpkoi1oju",
+  "profiles": [
+    {
+      "id": "mooeu8l19fkpkoi1oju",
+      "name": "A.F.D.",
+      "created": "2026-05-02T14:01:39.829Z",
+      "lastModified": "2026-05-30T19:23:34.937Z",
+      "data": {
+        "players": [
+          {
+            "id": 1777731266304,
+            "name": "Elliott",
+            "time": 0,
+            "inGame": true,
+            "position": {
+              "xPct": 58.46153846153847,
+              "yPct": 64.937218089247
+            },
+            "gameStartWallTime": null
+          },
+          {
+            "id": 1780168904938,
+            "name": "Anders",
+            "time": 0,
+            "inGame": true,
+            "position": {
+              "xPct": 29,
+              "yPct": 8
+            },
+            "gameStartWallTime": null
+          },
+          {
+            "id": 1780168908295,
+            "name": "Bob",
+            "time": 0,
+            "inGame": true,
+            "position": {
+              "xPct": 59.1025641025641,
+              "yPct": 23.164738616631972
+            },
+            "gameStartWallTime": null
+          },
+          {
+            "id": 1780168910885,
+            "name": "Terry",
+            "time": 0,
+            "inGame": true,
+            "position": {
+              "xPct": 87.05128205128206,
+              "yPct": 38.73448096551576
+            },
+            "gameStartWallTime": null
+          },
+          {
+            "id": 1780168915157,
+            "name": "Peter",
+            "time": 0,
+            "inGame": true,
+            "position": {
+              "xPct": 28.589743589743588,
+              "yPct": 80.12721062474337
+            },
+            "gameStartWallTime": null
+          },
+          {
+            "id": 1780168918477,
+            "name": "Levi",
+            "time": 0,
+            "inGame": true,
+            "position": {
+              "xPct": 29,
+              "yPct": 38
+            },
+            "gameStartWallTime": null
+          },
+          {
+            "id": 1780168923163,
+            "name": "yourmom",
+            "time": 0,
+            "inGame": true,
+            "position": {
+              "xPct": 2.9487179487179485,
+              "yPct": 48.038351393507284
+            },
+            "gameStartWallTime": null
+          },
+          {
+            "id": 1780168927012,
+            "name": "Stace",
+            "time": 0,
+            "inGame": false,
+            "position": {
+              "xPct": 5,
+              "yPct": 8
+            },
+            "gameStartWallTime": null
+          },
+          {
+            "id": 1780168944258,
+            "name": "Hazel",
+            "time": 0,
+            "inGame": false,
+            "position": {
+              "xPct": 5,
+              "yPct": 8
+            },
+            "gameStartWallTime": null
+          }
+        ],
+        "masterTimeRemaining": 2700,
+        "matchDuration": 45,
+        "maxOnField": 7,
+        "subTimerEnabled": false,
+        "subTimerMinutes": 5,
+        "subTimerActive": false,
+        "subTimerRemaining": null
+      }
+    }
+  ]
+}

@@ -418,6 +418,26 @@
             .player-oval { width: 82px; height: 52px; }
             .player-oval .player-name-on-map { font-size: 12px; }
         }
+
+        /* ════════════════════════════════
+           SHARE / IMPORT-CODE
+        ════════════════════════════════ */
+        .modal.share-modal { max-width: 420px; }
+        #share-qr-code { display: flex; justify-content: center; margin: 4px 0 8px; }
+        #share-qr-code canvas { border-radius: 8px; border: 3px solid var(--light-green); }
+        #share-code-box {
+            background: #f5f5f5; border: 1px solid #ddd; border-radius: 6px;
+            padding: 7px 10px; font-size: 0.72em; font-family: monospace;
+            word-break: break-all; color: #555; max-height: 52px; overflow: hidden;
+            user-select: all; -webkit-user-select: all; cursor: text;
+        }
+        .modal-actions.col { flex-direction: column; }
+        .modal textarea {
+            width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 0.88em; resize: vertical; min-height: 80px;
+            font-family: monospace; box-sizing: border-box;
+        }
+        .dropdown-divider { border: none; border-top: 1px solid #ccc; margin: 3px 0; }
     </style>
 </head>
 <body>
@@ -443,6 +463,34 @@
             <div class="modal-actions">
                 <button class="modal-confirm-btn" id="profile-modal-confirm">Save</button>
                 <button class="modal-cancel-btn"  id="profile-modal-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Share Profile modal ── -->
+    <div class="modal-overlay" id="share-modal">
+        <div class="modal share-modal">
+            <h2>Share Profile</h2>
+            <div class="modal-player-label" id="share-profile-label"></div>
+            <div id="share-qr-code"></div>
+            <div id="share-code-box"></div>
+            <div class="modal-actions col">
+                <button class="modal-confirm-btn" id="share-send-btn" style="display:none;">📱 Send via Messages</button>
+                <button class="modal-confirm-btn" id="share-copy-btn">Copy Code</button>
+                <button class="modal-cancel-btn"  id="share-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Import from Code modal ── -->
+    <div class="modal-overlay" id="import-code-modal">
+        <div class="modal">
+            <h2>Import from Code</h2>
+            <p style="font-size:0.85em; color:#666; margin:0 0 6px;">Paste a TeamTimer share code:</p>
+            <textarea id="import-code-input" placeholder="Paste code here…"></textarea>
+            <div class="modal-actions">
+                <button class="modal-confirm-btn" id="import-code-confirm">Import</button>
+                <button class="modal-cancel-btn"  id="import-code-cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -479,6 +527,9 @@
                     <div class="dropdown" style="margin-left:auto;">
                         <button class="dropdown-button">💾 Data</button>
                         <div class="dropdown-content">
+                            <a id="share-profile-btn">Send QuickShare</a>
+                            <a id="import-from-code-btn">Receive QuickShare</a>
+                            <hr class="dropdown-divider">
                             <a id="export-data">Export all profiles</a>
                             <a id="import-data-label">Import profiles</a>
                             <input type="file" id="import-file" accept=".json" style="display:none;">
@@ -543,6 +594,8 @@
 
     </div><!-- /.container -->
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -588,6 +641,21 @@
         const profileModalInput     = document.getElementById('profile-modal-input');
         const profileModalConfirm   = document.getElementById('profile-modal-confirm');
         const profileModalCancel    = document.getElementById('profile-modal-cancel');
+        // Share modal
+        const shareModal            = document.getElementById('share-modal');
+        const shareProfileLabelEl   = document.getElementById('share-profile-label');
+        const shareQrContainer      = document.getElementById('share-qr-code');
+        const shareCodeBox          = document.getElementById('share-code-box');
+        const shareSendBtn          = document.getElementById('share-send-btn');
+        const shareCopyBtn          = document.getElementById('share-copy-btn');
+        const shareCloseBtn         = document.getElementById('share-close-btn');
+        const shareProfileBtn       = document.getElementById('share-profile-btn');
+        // Import-from-code modal
+        const importCodeModal       = document.getElementById('import-code-modal');
+        const importCodeInput       = document.getElementById('import-code-input');
+        const importCodeConfirm     = document.getElementById('import-code-confirm');
+        const importCodeCancel      = document.getElementById('import-code-cancel');
+        const importFromCodeBtn     = document.getElementById('import-from-code-btn');
 
         // ════════════════════════════════════════════
         //  SETUP PANEL TOGGLE
@@ -1358,6 +1426,152 @@
             updateSubTimerDisplay();
             renderPlayers();
         })();
+
+        // ════════════════════════════════════════════
+        //  COMPRESS / DECOMPRESS
+        // ════════════════════════════════════════════
+        const compressProfile = (payload) => {
+            const json = JSON.stringify(payload);
+            const compressed = pako.deflateRaw(json);
+            let binary = '';
+            for (let i = 0; i < compressed.length; i += 8192) {
+                binary += String.fromCharCode.apply(null, compressed.subarray(i, i + 8192));
+            }
+            return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        };
+
+        const decompressProfile = (str) => {
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) str += '=';
+            const binary = atob(str);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return JSON.parse(pako.inflateRaw(bytes, { to: 'string' }));
+        };
+
+        // ════════════════════════════════════════════
+        //  SHARE MODAL
+        // ════════════════════════════════════════════
+        const openShareModal = () => {
+            const profiles = loadAllProfiles();
+            const activeId = getActiveId();
+            const idx = profiles.findIndex(p => p.id === activeId);
+            if (idx !== -1) {
+                profiles[idx].data = snapshotData();
+                profiles[idx].lastModified = new Date().toISOString();
+                saveAllProfiles(profiles);
+            }
+            const profile = loadAllProfiles().find(p => p.id === activeId);
+            if (!profile) return;
+
+            const code = compressProfile({ v: 2, profile });
+            const shareText = 'TeamTimer: ' + code;
+
+            shareProfileLabelEl.textContent = profile.name;
+            shareCodeBox.textContent = shareText;
+
+            shareQrContainer.innerHTML = '';
+            new QRCode(shareQrContainer, {
+                text: shareText,
+                width: 200,
+                height: 200,
+                colorDark: '#1a1a1a',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.L
+            });
+
+            shareSendBtn.style.display = navigator.share ? '' : 'none';
+            shareSendBtn.onclick = () => {
+                navigator.share({ title: 'TeamTimer — ' + profile.name, text: shareText }).catch(() => {});
+            };
+
+            shareCopyBtn.textContent = 'Copy Code';
+            shareModal.classList.add('open');
+        };
+
+        shareProfileBtn.addEventListener('click', openShareModal);
+        shareCloseBtn.addEventListener('click', () => shareModal.classList.remove('open'));
+        shareModal.addEventListener('click', (e) => { if (e.target === shareModal) shareModal.classList.remove('open'); });
+
+        const fallbackCopy = (text) => {
+            const ta = document.createElement('textarea');
+            ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); ta.remove();
+        };
+
+        shareCopyBtn.addEventListener('click', () => {
+            const text = shareCodeBox.textContent;
+            const done = () => {
+                shareCopyBtn.textContent = '✓ Copied!';
+                setTimeout(() => { shareCopyBtn.textContent = 'Copy Code'; }, 2000);
+            };
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(done).catch(() => { fallbackCopy(text); done(); });
+            } else {
+                fallbackCopy(text); done();
+            }
+        });
+
+        // ════════════════════════════════════════════
+        //  IMPORT FROM CODE
+        // ════════════════════════════════════════════
+        importFromCodeBtn.addEventListener('click', () => {
+            importCodeInput.value = '';
+            importCodeModal.classList.add('open');
+            setTimeout(() => importCodeInput.focus(), 50);
+        });
+
+        importCodeCancel.addEventListener('click', () => importCodeModal.classList.remove('open'));
+        importCodeModal.addEventListener('click', (e) => { if (e.target === importCodeModal) importCodeModal.classList.remove('open'); });
+        importCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.ctrlKey) importCodeConfirm.click(); });
+
+        importCodeConfirm.addEventListener('click', () => {
+            let raw = importCodeInput.value.trim();
+            if (!raw) { alert('Please paste a share code.'); return; }
+            try {
+                if (raw.startsWith('TeamTimer: ')) raw = raw.slice(11);
+                const payload = decompressProfile(raw);
+                if (payload.v !== 2 || !payload.profile) { alert('Invalid share code.'); return; }
+
+                const incoming = payload.profile;
+                const profiles = loadAllProfiles();
+                const existingIdx = profiles.findIndex(p => p.id === incoming.id);
+                const msg = existingIdx !== -1
+                    ? `Update existing profile "${incoming.name}" with the shared version?`
+                    : `Add "${incoming.name}" to your profiles?`;
+                if (!confirm(msg)) return;
+
+                if (timerState === 'playing') pauseTimers();
+
+                const cleaned = {
+                    ...incoming,
+                    data: {
+                        ...incoming.data,
+                        players: (incoming.data.players || []).map(pl => ({ ...pl, gameStartWallTime: null })),
+                        subTimerActive: false,
+                        subTimerRemaining: null
+                    }
+                };
+
+                if (existingIdx !== -1) profiles[existingIdx] = cleaned;
+                else profiles.push(cleaned);
+
+                saveAllProfiles(profiles);
+                setActiveId(cleaned.id);
+                applyData(cleaned.data);
+                pendingSubs = []; timerState = 'paused'; playStartWallTime = null;
+                playPauseResumeBtn.textContent = 'Play';
+                updateSubNowButton(); updateMasterTimerDisplay(); updateSubTimerDisplay();
+                renderProfileSelect(); renderPlayers();
+
+                importCodeModal.classList.remove('open');
+                importCodeInput.value = '';
+                alert(`"${cleaned.name}" imported successfully.`);
+            } catch {
+                alert('Could not read share code. Make sure you pasted the complete code.');
+            }
+        });
 
     }); // DOMContentLoaded
     </script>
