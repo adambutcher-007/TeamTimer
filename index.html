@@ -283,12 +283,21 @@
             margin-bottom: 10px;
         }
 
-        .goal-line       { position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--line-white); }
-        .half-field-line { position:absolute; right:0; top:0; bottom:0; width:3px; background:var(--line-white); }
-        .sideline-top    { position:absolute; top:0; left:0; right:0; height:3px; background:var(--line-white); }
-        .sideline-bottom { position:absolute; bottom:0; left:0; right:0; height:3px; background:var(--line-white); }
-        .goal-box        { position:absolute; left:0; top:25%; width:10%; height:50%; border:3px solid var(--line-white); border-left:none; }
-        .penalty-box     { position:absolute; left:0; top:15%; width:25%; height:70%; border:3px solid var(--line-white); border-left:none; }
+        /* half-field center line */
+        .half-line     { position:absolute; left:50%; top:0; bottom:0; width:3px; background:var(--line-white); transform:translateX(-50%); }
+        /* center circle — width% of field width; height scaled ×1.5 so it's circular on a 1.5:1 field */
+        .center-circle { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:17.4%; height:26.1%; border:3px solid var(--line-white); border-radius:50%; }
+        /* small filled dots: center spot + penalty spots */
+        .field-dot     { position:absolute; width:7px; height:7px; background:var(--line-white); border-radius:50%; transform:translate(-50%,-50%); }
+        /* goal & penalty boxes — .right mirrors to the far end */
+        .goal-box         { position:absolute; left:0;    top:25%; width:10%; height:50%; border:3px solid var(--line-white); border-left:none; }
+        .goal-box.right   { left:auto; right:0; border-left:3px solid var(--line-white); border-right:none; }
+        .penalty-box      { position:absolute; left:0;    top:15%; width:25%; height:70%; border:3px solid var(--line-white); border-left:none; }
+        .penalty-box.right{ left:auto; right:0; border-left:3px solid var(--line-white); border-right:none; }
+        /* penalty arc: full circle clipped to show only the portion outside the penalty box */
+        .penalty-arc      { position:absolute; top:50%; width:27.8%; height:41.7%; border:3px solid var(--line-white); border-radius:50%; transform:translateY(-50%); }
+        .penalty-arc.left { left:2.8%;  clip-path:inset(0 0 0 80%); }
+        .penalty-arc.right{ right:2.8%; clip-path:inset(0 80% 0 0); }
 
         .player-oval {
             position: absolute; width: 100px; height: 60px;
@@ -578,12 +587,17 @@
 
         <!-- ══ Field (always visible) ══ -->
         <div class="field-container" id="field">
-            <div class="goal-line"></div>
-            <div class="half-field-line"></div>
-            <div class="sideline-top"></div>
-            <div class="sideline-bottom"></div>
+            <div class="half-line"></div>
+            <div class="center-circle"></div>
+            <div class="field-dot" style="left:50%;top:50%"></div>
             <div class="goal-box"></div>
+            <div class="goal-box right"></div>
             <div class="penalty-box"></div>
+            <div class="penalty-box right"></div>
+            <div class="field-dot" style="left:16.7%;top:50%"></div>
+            <div class="field-dot" style="left:83.3%;top:50%"></div>
+            <div class="penalty-arc left"></div>
+            <div class="penalty-arc right"></div>
         </div>
 
         <!-- ══ Player list (always visible) ══ -->
